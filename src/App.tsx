@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import DashboardLayout from './layouts/DashboardLayout'
 import DashboardPage from './pages/dashboard/DashbaordPage';
 import PatientsPage from './pages/patient/PatientsPage';
+import DoctorsPage from './pages/doctor/DoctorsPage';
 // Simple placeholders for pages you haven't built yet
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
@@ -28,7 +29,7 @@ function App() {
           
           {/* Sub-pages: These show up inside the same Sidebar/Header layout */}
           <Route path="patients" element={<PatientsPage />} />
-          <Route path="doctors" element={<Placeholder name="Manage Doctors" />} />
+          <Route path="doctors" element={<DoctorsPage/>} />
           <Route path="appointments" element={<Placeholder name="Appointments" />} />
           <Route path="lab" element={<Placeholder name="Lab Results" />} />
           <Route path="prescriptions" element={<Placeholder name="Prescriptions" />} />
