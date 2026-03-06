@@ -7,6 +7,7 @@ interface Props {
   loading?: boolean;
 }
 
+
 export default function PatientForm({ onSubmit, onCancel, loading }: Props) {
   const [formData, setFormData] = useState<CreatePatientRequest>({
     firstName: '',
