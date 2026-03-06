@@ -6,6 +6,7 @@ const navItems = [
   { name: 'Manage Doctors', icon: 'fa-solid fa-user-doctor', path: '/dashboard/doctors' },
    { name: 'Working Hours', icon: 'fa-solid fa-clock', path: '/dashboard/working-hours' }, 
   { name: 'Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/appointments' },
+  { name: 'Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/medical-records' },
   { name: 'Lab Results', icon: 'fa-solid fa-flask-vial', path: '/dashboard/lab' },
   { name: 'Prescriptions', icon: 'fa-solid fa-capsules', path: '/dashboard/prescriptions' },
   { name: 'Departments', icon: 'fa-solid fa-hospital', path: '/dashboard/departments' },
