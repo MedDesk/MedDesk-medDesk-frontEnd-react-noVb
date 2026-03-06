@@ -29,6 +29,7 @@ export default function DoctorForm({ isOpen, onClose, onSubmit }: DoctorFormProp
     specialist: 'GENERAL_PRACTICE',
   });
 
+  
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
