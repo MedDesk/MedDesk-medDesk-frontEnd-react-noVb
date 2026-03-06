@@ -4,8 +4,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout'
-import DashboardPage from './pages/DashbaordPage';
-
+import DashboardPage from './pages/dashboard/DashbaordPage';
+import PatientsPage from './pages/patient/PatientsPage';
 // Simple placeholders for pages you haven't built yet
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
@@ -27,7 +27,7 @@ function App() {
           <Route index element={<DashboardPage />} />
           
           {/* Sub-pages: These show up inside the same Sidebar/Header layout */}
-          <Route path="patients" element={<Placeholder name="Manage Patients" />} />
+          <Route path="patients" element={<PatientsPage />} />
           <Route path="doctors" element={<Placeholder name="Manage Doctors" />} />
           <Route path="appointments" element={<Placeholder name="Appointments" />} />
           <Route path="lab" element={<Placeholder name="Lab Results" />} />
