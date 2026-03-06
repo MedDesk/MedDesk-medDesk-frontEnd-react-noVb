@@ -65,6 +65,7 @@ export default function DashboardPage() {
   <i className="fa-solid fa-notes-medical absolute right-40 top-10 text-4xl text-white opacity-5"></i>
 </div>
 
+
       <div className="grid grid-cols-12 gap-8">
         {/* Left Side: Stats & Metrics */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
