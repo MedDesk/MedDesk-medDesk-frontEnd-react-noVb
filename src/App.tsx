@@ -26,7 +26,7 @@ function App() {
         {/* 1. When the user opens the site, redirect them to the dashboard */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* 2. Dashboard Routes wrapped in the Layout */}
+        {/* 2. Dashboard Routes wrapped in the Layout*/}
         <Route path="/dashboard" element={<DashboardLayout />}>
           {/* This is the main content (stats, banner, etc.) */}
           <Route index element={<DashboardPage />} />
