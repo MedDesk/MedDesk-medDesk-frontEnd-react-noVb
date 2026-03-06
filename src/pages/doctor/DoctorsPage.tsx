@@ -16,6 +16,7 @@ interface DoctorDto {
   address: string;
 }
 
+
 // ─── Specialty Mapping ────────────────────────────────────────────────────────
 const SPEC_MAP: Record<
   string,
