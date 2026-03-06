@@ -220,6 +220,7 @@ export default function MedicalRecordsListPage() {
                   required
                 />
               </div>
+              
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Step 2: Choose Appointment</label>
