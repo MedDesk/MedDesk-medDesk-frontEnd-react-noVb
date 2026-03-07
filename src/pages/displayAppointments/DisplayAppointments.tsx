@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 // Changed deleteAppointment to updateAvailability
 import { getWeeklyAvailability, createAppointment, updateAvailability } from '../../services/AppointmentService';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ─────────────────
 interface Slot {
   appointmentId?: number; // Matches backend DTO
   startTime: string;
