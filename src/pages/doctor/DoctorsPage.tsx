@@ -169,9 +169,9 @@ function DoctorCard({ doctor, onDelete }: { doctor: DoctorDto; onDelete: () => v
         >
           <i className="fa-solid fa-circle-user text-xs"></i> Profile
         </button>
-        <button className="w-12 h-12 bg-slate-50 hover:bg-amber-100 hover:text-amber-600 text-slate-400 rounded-2xl transition-all flex items-center justify-center">
+        {/* <button className="w-12 h-12 bg-slate-50 hover:bg-amber-100 hover:text-amber-600 text-slate-400 rounded-2xl transition-all flex items-center justify-center">
           <i className="fa-solid fa-pen-to-square text-xs"></i>
-        </button>
+        </button> */}
         <button 
           onClick={onDelete}
           className="w-12 h-12 bg-slate-50 hover:bg-red-100 hover:text-red-600 text-slate-400 rounded-2xl transition-all flex items-center justify-center"
