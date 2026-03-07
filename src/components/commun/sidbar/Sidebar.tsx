@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
   { name: 'Dashboard', icon: 'fa-solid fa-table-columns', path: '/dashboard' },
+  { name: 'Manage users', icon: 'fa-solid fa-user-shield', path: '/dashboard/users' },
   { name: 'Manage Patients', icon: 'fa-solid fa-users', path: '/dashboard/patients' },
   { name: 'Manage Doctors', icon: 'fa-solid fa-user-doctor', path: '/dashboard/doctors' },
    { name: 'Manage working Hours', icon: 'fa-solid fa-clock', path: '/dashboard/working-hours' }, 
