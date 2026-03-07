@@ -88,3 +88,16 @@ export const getDayAvailability = async (date: string) => {
     throw error;
   }
 };
+
+
+export const updateAvailability = async (id: number, available: boolean) => {
+  try {
+    const response = await apiClient.patch(`${BASE_URL}/${id}/availability`, null, {
+      params: { available } // This sends it as a query param
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error toggling availability for ${id}:`, error);
+    throw error;
+  }
+};
