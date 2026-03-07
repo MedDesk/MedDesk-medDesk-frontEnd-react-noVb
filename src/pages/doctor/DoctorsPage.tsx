@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import DoctorForm from "./DoctorForm";
 import { type CreateDoctorRequest } from "../../types/Doctor";
-// 1. Import your API service functions
 import { getDoctors, createDoctor, deleteDoctor } from "../../services/doctorService";
+import { useNavigate } from "react-router-dom"; // Cleaned up imports
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface DoctorDto {
@@ -17,7 +17,7 @@ interface DoctorDto {
   address: string;
 }
 
-// ─── Specialty Mapping (Unchanged) ───────────────────────────────────────────
+// ─── Specialty Mapping ────────────────────────────────────────────────────────
 const SPEC_MAP: Record<string, { color: string; bg: string; icon: string; border: string }> = {
   CARDIOLOGY: { color: "text-rose-600", bg: "bg-rose-50", icon: "fa-heart-pulse", border: "group-hover:border-rose-200" },
   NEUROLOGY: { color: "text-purple-600", bg: "bg-purple-50", icon: "fa-brain", border: "group-hover:border-purple-200" },
@@ -29,17 +29,13 @@ const SPEC_MAP: Record<string, { color: string; bg: string; icon: string; border
 export default function DoctorsPage() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // 2. Real State: Initialize as an empty array
   const [doctors, setDoctors] = useState<DoctorDto[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 3. Logic: Fetch doctors from API
   const fetchDoctors = async () => {
     setLoading(true);
     try {
-      const response = await getDoctors(0, 100); // Page 0, Size 100
-      // Assuming your API returns a paginated object like { data: { content: [...] } }
+      const response = await getDoctors(0, 100);
       setDoctors(response.data.content || []);
     } catch (error) {
       console.error("Failed to load doctors", error);
@@ -48,28 +44,25 @@ export default function DoctorsPage() {
     }
   };
 
-  // 4. Run fetch on page load
   useEffect(() => {
     fetchDoctors();
   }, []);
 
-  // 5. Logic: Handle Creation
   const handleCreateDoctor = async (data: CreateDoctorRequest) => {
     try {
       await createDoctor(data);
       setIsModalOpen(false);
-      fetchDoctors(); // Refresh the list after adding
+      fetchDoctors();
     } catch (error) {
-      alert("Error creating doctor. Check console.");
+      alert("Error creating doctor.");
     }
   };
 
-  // 6. Logic: Handle Deletion
   const handleDeleteDoctor = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this doctor?")) {
       try {
         await deleteDoctor(id);
-        fetchDoctors(); // Refresh the list after deleting
+        fetchDoctors();
       } catch (error) {
         alert("Error deleting doctor.");
       }
@@ -84,7 +77,6 @@ export default function DoctorsPage() {
 
   return (
     <div className="p-8 bg-[#F8FAFC] min-h-screen font-sans">
-      {/* Header (UI Unchanged) */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Medical Staff</h1>
@@ -108,7 +100,6 @@ export default function DoctorsPage() {
         </div>
       </div>
 
-      {/* Grid */}
       {loading ? (
         <div className="flex justify-center p-20 text-slate-400 font-bold uppercase tracking-widest animate-pulse">Loading Staff...</div>
       ) : (
@@ -132,14 +123,18 @@ export default function DoctorsPage() {
   );
 }
 
-// ─── Subcomponents (UI Unchanged) ───────────────────────────────────────────
+// ─── Subcomponents ───────────────────────────────────────────────────────────
 function DoctorCard({ doctor, onDelete }: { doctor: DoctorDto; onDelete: () => void }) {
+  // FIX: useNavigate must be called inside THIS component to be used here
+  const navigate = useNavigate(); 
+  
   const spec = SPEC_MAP[doctor.specialist] || SPEC_MAP.GENERAL_PRACTICE;
   const initials = `${doctor.firstName[0]}${doctor.lastName[0]}`;
 
   return (
     <div className={`group bg-white rounded-[2.5rem] p-7 border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 relative overflow-hidden ${spec.border}`}>
       <div className={`absolute top-0 left-0 w-full h-1.5 ${spec.bg}`}></div>
+      
       <div className="flex justify-between items-start mb-6">
         <div className="relative">
           {doctor.profileImage ? (
@@ -153,25 +148,30 @@ function DoctorCard({ doctor, onDelete }: { doctor: DoctorDto; onDelete: () => v
           <i className={`fa-solid ${spec.icon} text-sm`}></i> {doctor.specialist.replace('_', ' ')}
         </div>
       </div>
+
       <div className="mb-6">
         <h3 className="text-xl font-bold text-slate-800 tracking-tight">Dr. {doctor.firstName} {doctor.lastName}</h3>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-[10px] font-black text-blue-500/50 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">License: {doctor.license_number}</span>
         </div>
       </div>
+
       <div className="space-y-3.5 mb-8">
         <ContactRow icon="fa-phone" text={doctor.phone} />
         <ContactRow icon="fa-envelope" text={doctor.email} />
         <ContactRow icon="fa-location-dot" text={doctor.address} />
       </div>
+
       <div className="flex gap-2 pt-6 border-t border-slate-50">
-        <button className="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-3.5 rounded-2xl transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2">
+        <button 
+          className="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white py-3.5 rounded-2xl transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2"
+          onClick={() => navigate(`/dashboard/doctors/${doctor.id}`)} // FIX: Absolute path
+        >
           <i className="fa-solid fa-circle-user text-xs"></i> Profile
         </button>
         <button className="w-12 h-12 bg-slate-50 hover:bg-amber-100 hover:text-amber-600 text-slate-400 rounded-2xl transition-all flex items-center justify-center">
           <i className="fa-solid fa-pen-to-square text-xs"></i>
         </button>
-        {/* Delete functionality added to your UI button */}
         <button 
           onClick={onDelete}
           className="w-12 h-12 bg-slate-50 hover:bg-red-100 hover:text-red-600 text-slate-400 rounded-2xl transition-all flex items-center justify-center"
