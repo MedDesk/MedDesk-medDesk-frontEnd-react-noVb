@@ -3,7 +3,7 @@ import { getDashboardStatistics } from '../../services/DashbaordStatistics';
 import { getAppointments } from '../../services/AppointmentService';
 
 export default function DashboardPage() {
-  // --- 1. STATES ---
+  // --- 1 STATES ---
   const [stats, setStats] = useState<any>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
