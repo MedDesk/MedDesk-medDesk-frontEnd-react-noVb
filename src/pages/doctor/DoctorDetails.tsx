@@ -9,6 +9,7 @@ export default function DoctorDetails() {
   const [doctor, setDoctor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  
   // --- TOGGLE STATE ---
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<any>({});
