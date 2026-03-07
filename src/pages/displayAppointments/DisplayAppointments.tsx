@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-// Added deleteAppointment to imports
-import { getWeeklyAvailability, createAppointment, deleteAppointment } from '../../services/AppointmentService';
+// Changed deleteAppointment to updateAvailability
+import { getWeeklyAvailability, createAppointment, updateAvailability } from '../../services/AppointmentService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Slot {
-  id?: number; // Added this to store the Appointment ID for deletion
+  appointmentId?: number; // Matches backend DTO
   startTime: string;
   endTime: string;
-  available: boolean;
+  available: boolean;     // Matches backend JSON key
+  status?: string;        // Optional status string
 }
 
 interface DayAvailability {
@@ -28,6 +29,7 @@ export default function DisplayAppointments() {
     setLoading(true);
     try {
       const response = await getWeeklyAvailability();
+      // Handle the data whether it's wrapped in response.data or direct
       setWeeklyData(response.data || response); 
     } catch (error) {
       console.error("Error loading availability:", error);
@@ -62,15 +64,17 @@ export default function DisplayAppointments() {
     }
   };
 
-  // ─── New: Handle Cancel Logic ──────────────────────────────────────────────
+  // ─── Fixed: Handle Availability Toggle Logic ────────────────────────────────
   const handleCancelAppointment = async (appointmentId: number) => {
-    if (!window.confirm("Are you sure you want to cancel this appointment? -- u cannot becaue slot has no id to cancel it")) return;
+    if (!window.confirm("Are you sure you want to cancel this appointment and make the slot available?")) return;
 
     try {
-      await deleteAppointment(appointmentId);
-      alert("Appointment cancelled successfully.");
-      fetchAvailability(); // Refresh UI
+      // available: true makes the slot available again (sets status to CANCELED in DB)
+      await updateAvailability(appointmentId, true);
+      alert("Appointment cancelled and slot is now available.");
+      fetchAvailability(); // Refresh UI to see the slot turn blue/available
     } catch (error) {
+      console.error(error);
       alert("Failed to cancel appointment.");
     }
   };
@@ -124,16 +128,17 @@ export default function DisplayAppointments() {
                         
                         <div className="flex items-center gap-2">
                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Booked</span>
-                           {/* The Cancel Button */}
-                           {/* {slot.id && ( */}
+                           
+                           {/* Fixed: Use appointmentId instead of id */}
+                           {slot.appointmentId && (
                              <button 
-                               onClick={() => handleCancelAppointment(slot.id!)}
-                               className="ml-2 p-2 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all group/btn"
+                               onClick={() => handleCancelAppointment(slot.appointmentId!)}
+                               className="ml-2 p-2 rounded-xl bg-white text-rose-500 shadow-sm hover:bg-rose-500 hover:text-white transition-all group/btn"
                                title="Cancel Appointment"
                              >
-                                <i className="fa-solid fa-xmark text-[12px]"></i>
+                                <i className="fa-solid fa-unlock text-[12px]"></i>
                              </button>
-                           {/* )} */}
+                           )}
                         </div>
                       </div>
                     );
