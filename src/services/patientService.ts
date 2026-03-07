@@ -56,7 +56,7 @@ export const getPatientById = async (id: number): Promise<ApiResponse<PatientDto
  */
 export const updatePatient = async (id: number, data: Partial<CreatePatientRequest>): Promise<ApiResponse<PatientDtoResponse>> => {
     try {
-        const response = await apiClient.put<ApiResponse<PatientDtoResponse>>(`${BASE_URL}/${id}`, data);
+        const response = await apiClient.patch<ApiResponse<PatientDtoResponse>>(`${BASE_URL}/${id}`, data);
         return response.data;
     } catch (error) {
         console.error(`Error updating patient ${id}:`, error);
