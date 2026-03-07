@@ -13,6 +13,7 @@ import MedicalRecordsListPage from './pages/medicalRecords/MedicalRecordsListPag
 import MedicalRecordDetails from './pages/medicalRecords/MedicalRecordDetails';
 import PatientDetails from './pages/patient/PatientDetails';
 import DoctorDetails from './pages/doctor/DoctorDetails';
+import DisplayAppointments from './pages/displayAppointments/DisplayAppointments';
 // Simple placeholders for pages you haven't built yet
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
@@ -41,6 +42,7 @@ function App() {
           <Route path="doctors/:id" element={<DoctorDetails/>} />
           <Route path="working-hours" element={<WorkingHoursPage/>} />
           <Route path="appointments" element={<AppointmentsPage />} />
+          <Route path="appointments-display" element={<DisplayAppointments />} />
           <Route path="medical-records" element={<MedicalRecordsListPage />} />
           <Route path="medical-records/:id" element={<MedicalRecordDetails />} />
           <Route path="lab" element={<Placeholder name="Lab Results" />} />
