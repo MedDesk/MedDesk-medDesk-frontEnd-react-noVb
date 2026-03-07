@@ -11,6 +11,7 @@ import WorkingHoursPage from './pages/wokringHours/WokringHoursPage';
 import AppointmentsPage from './pages/appointments/AppointmentsPage';
 import MedicalRecordsListPage from './pages/medicalRecords/MedicalRecordsListPage';
 import MedicalRecordDetails from './pages/medicalRecords/MedicalRecordDetails';
+import PatientDetails from './pages/patient/PatientDetails';
 // Simple placeholders for pages you haven't built yet
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
@@ -33,6 +34,8 @@ function App() {
           
           {/* Sub-pages: These show up inside the same Sidebar/Header layout */}
           <Route path="patients" element={<PatientsPage />} />
+          <Route path="patients/:id" element={<PatientDetails />} />
+
           <Route path="doctors" element={<DoctorsPage/>} />
           <Route path="working-hours" element={<WorkingHoursPage/>} />
           <Route path="appointments" element={<AppointmentsPage />} />
