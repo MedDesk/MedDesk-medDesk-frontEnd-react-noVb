@@ -1,9 +1,5 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import DashboardLayout from './layouts/DashboardLayout'
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/dashboard/DashbaordPage';
 import PatientsPage from './pages/patient/PatientsPage';
 import DoctorsPage from './pages/doctor/DoctorsPage';
@@ -16,7 +12,26 @@ import DoctorDetails from './pages/doctor/DoctorDetails';
 import DisplayAppointments from './pages/displayAppointments/DisplayAppointments';
 import UsersListPage from './pages/usres/UsersListPage';
 import HomePage from './pages/home/HomePage';
-// Simple placeholders for pages you haven't built yet
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import exists
+
+// --- GUARD COMPONENTS ---
+
+// 1. Public Route: Only accessible if NOT logged in (Login/Register)
+const PublicRoute = () => {
+  const token = localStorage.getItem('accessToken');
+  // If token exists, user is already logged in, send them to dashboard
+  return token ? <Navigate to="/dashboard" replace /> : <Outlet />;
+};
+
+// 2. Protected Route: Only accessible if logged in (Dashboard)
+const ProtectedRoute = () => {
+  const token = localStorage.getItem('accessToken');
+  // If no token, user is not logged in, send them to login
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
+};
+
+// Placeholder for missing pages
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
     <h1 className="text-2xl font-bold text-slate-800">{name} Page</h1>
@@ -28,33 +43,36 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* 1. When the user opens the site, redirect them to the dashboard */}
-    
-        <Route path="/" element={<HomePage />}/>
-        {/* 2. Dashboard Routes wrapped in the Layout*/}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          {/* This is the main content (stats, banner, etc.) */}
-          <Route index element={<DashboardPage />} />
-          
-          <Route path="users" element={<UsersListPage />} />
-          {/* Sub-pages: These show up inside the same Sidebar/Header layout */}
-          <Route path="patients" element={<PatientsPage />} />
-          <Route path="patients/:id" element={<PatientDetails />} />
+        {/* --- PUBLIC ACCESS --- */}
+        <Route path="/" element={<HomePage />} />
 
-          <Route path="doctors" element={<DoctorsPage/>} />
-          <Route path="doctors/:id" element={<DoctorDetails/>} />
-          <Route path="working-hours" element={<WorkingHoursPage/>} />
-          <Route path="appointments" element={<AppointmentsPage />} />
-          <Route path="appointments-display" element={<DisplayAppointments />} />
-          <Route path="medical-records" element={<MedicalRecordsListPage />} />
-          <Route path="medical-records/:id" element={<MedicalRecordDetails />} />
-          <Route path="lab" element={<Placeholder name="Lab Results" />} />
-          <Route path="prescriptions" element={<Placeholder name="Prescriptions" />} />
-          <Route path="departments" element={<Placeholder name="Departments" />} />
-          <Route path="records" element={<Placeholder name="Medical Records" />} />
+        {/* --- GUEST ONLY (Redirects to dashboard if logged in) --- */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        {/* 3. Catch-all for 404 errors */}
+        {/* --- PROTECTED ROUTES (Redirects to login if logged out) --- */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="users" element={<UsersListPage />} />
+            <Route path="patients" element={<PatientsPage />} />
+            <Route path="patients/:id" element={<PatientDetails />} />
+            <Route path="doctors" element={<DoctorsPage />} />
+            <Route path="doctors/:id" element={<DoctorDetails />} />
+            <Route path="working-hours" element={<WorkingHoursPage />} />
+            <Route path="appointments" element={<AppointmentsPage />} />
+            <Route path="appointments-display" element={<DisplayAppointments />} />
+            <Route path="medical-records" element={<MedicalRecordsListPage />} />
+            <Route path="medical-records/:id" element={<MedicalRecordDetails />} />
+            <Route path="lab" element={<Placeholder name="Lab Results" />} />
+            <Route path="prescriptions" element={<Placeholder name="Prescriptions" />} />
+            <Route path="departments" element={<Placeholder name="Departments" />} />
+            <Route path="records" element={<Placeholder name="Medical Records" />} />
+          </Route>
+        </Route>
+
         <Route path="*" element={<div className="h-screen flex items-center justify-center font-bold">404 - Not Found</div>} />
       </Routes>
     </Router>
