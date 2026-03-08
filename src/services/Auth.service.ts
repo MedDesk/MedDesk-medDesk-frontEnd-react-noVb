@@ -33,11 +33,5 @@ export const logout = async () => {
 };
 
 export const getCurrentUser = async () => {
-  try {
-    const response = await apiClient.get(`${BASE_URL}/me`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching current user:", error);
-    throw error;
-  }
+        return JSON.parse(localStorage.getItem('user') || 'null');
 };      
