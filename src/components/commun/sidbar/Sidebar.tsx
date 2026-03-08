@@ -12,7 +12,7 @@ const navItems = [
   { name: 'Lab Results', icon: 'fa-solid fa-flask-vial', path: '/dashboard/lab' },
   { name: 'Prescriptions', icon: 'fa-solid fa-capsules', path: '/dashboard/prescriptions' },
   { name: 'Departments', icon: 'fa-solid fa-hospital', path: '/dashboard/departments' },
-  { name: 'Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/records' },
+
 ];
 
 export default function Sidebar() {

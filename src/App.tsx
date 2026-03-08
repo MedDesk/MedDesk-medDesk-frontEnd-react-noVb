@@ -15,6 +15,7 @@ import PatientDetails from './pages/patient/PatientDetails';
 import DoctorDetails from './pages/doctor/DoctorDetails';
 import DisplayAppointments from './pages/displayAppointments/DisplayAppointments';
 import UsersListPage from './pages/usres/UsersListPage';
+import HomePage from './pages/home/HomePage';
 // Simple placeholders for pages you haven't built yet
 const Placeholder = ({ name }: { name: string }) => (
   <div className="p-8">
@@ -28,8 +29,8 @@ function App() {
     <Router>
       <Routes>
         {/* 1. When the user opens the site, redirect them to the dashboard */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
+    
+        <Route path="/" element={<HomePage />}/>
         {/* 2. Dashboard Routes wrapped in the Layout*/}
         <Route path="/dashboard" element={<DashboardLayout />}>
           {/* This is the main content (stats, banner, etc.) */}
