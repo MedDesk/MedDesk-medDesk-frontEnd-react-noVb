@@ -1,16 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
 import DashboardPage from './pages/dashboard/DashbaordPage';
-import PatientsPage from './pages/patient/PatientsPage';
-import DoctorsPage from './pages/doctor/DoctorsPage';
+import PatientsPage from './pages/admin/patient/PatientsPage';
+import DoctorsPage from './pages/admin/doctor/DoctorsPage';
 import WorkingHoursPage from './pages/wokringHours/WokringHoursPage';
-import AppointmentsPage from './pages/appointments/AppointmentsPage';
-import MedicalRecordsListPage from './pages/medicalRecords/MedicalRecordsListPage';
-import MedicalRecordDetails from './pages/medicalRecords/MedicalRecordDetails';
-import PatientDetails from './pages/patient/PatientDetails';
-import DoctorDetails from './pages/doctor/DoctorDetails';
-import DisplayAppointments from './pages/displayAppointments/DisplayAppointments';
-import UsersListPage from './pages/usres/UsersListPage';
+import AppointmentsPage from './pages/admin/appointments/AppointmentsPage';
+import MedicalRecordsListPage from './pages/admin/medicalRecords/MedicalRecordsListPage';
+import MedicalRecordDetails from './pages/admin/medicalRecords/MedicalRecordDetails';
+import PatientDetails from './pages/admin/patient/PatientDetails';
+import DoctorDetails from './pages/admin/doctor/DoctorDetails';
+import DisplayAppointments from './pages/admin/displayAppointments/DisplayAppointments';
+import UsersListPage from './pages/admin/usres/UsersListPage';
 import HomePage from './pages/home/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import exists

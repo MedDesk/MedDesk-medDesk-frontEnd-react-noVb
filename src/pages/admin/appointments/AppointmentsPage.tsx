@@ -6,7 +6,7 @@ import {
   deleteAppointment, 
   getDayAvailability,
   createAppointment 
-} from '../../services/AppointmentService';
+} from '../../../services/AppointmentService';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type AppointmentStatus = 'SCHEDULED' | 'CONFIRMED' | 'CANCELED' | 'COMPLETED';

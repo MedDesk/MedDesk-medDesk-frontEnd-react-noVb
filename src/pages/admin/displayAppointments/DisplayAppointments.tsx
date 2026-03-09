@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Changed deleteAppointment to updateAvailability
-import { getWeeklyAvailability, createAppointment, updateAvailability } from '../../services/AppointmentService';
+import { getWeeklyAvailability, createAppointment, updateAvailability } from '../../../services/AppointmentService';
 
 // ─── Types ─────────────────
 interface Slot {

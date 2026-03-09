@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDoctorById, updateDoctor } from '../../services/doctorService';
-import { type CreateDoctorRequest } from '../../types/Doctor';
+import { getDoctorById, updateDoctor } from '../../../services/doctorService';
+import { type CreateDoctorRequest } from '../../../types/Doctor';
 
 export default function DoctorDetails() {
   const { id } = useParams();

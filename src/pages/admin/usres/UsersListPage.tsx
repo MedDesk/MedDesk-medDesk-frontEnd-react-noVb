@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, createUser, deleteUser } from '../../services/UserService';
+import { getUsers, createUser, deleteUser } from '../../../services/UserService';
 
 // Helper function to get colors based on Role - Simple for beginners
 function getRoleBadgeStyles(role: string) {

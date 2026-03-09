@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {type CreatePatientRequest }  from '../../types/Patient';
+import {type CreatePatientRequest }  from '../../../types/Patient';
 
 interface Props {
   onSubmit: (data: CreatePatientRequest) => void;

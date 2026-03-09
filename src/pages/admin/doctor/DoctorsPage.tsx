@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import DoctorForm from "./DoctorForm";
-import { type CreateDoctorRequest } from "../../types/Doctor";
-import { getDoctors, createDoctor, deleteDoctor } from "../../services/doctorService";
+import { type CreateDoctorRequest } from "../../../types/Doctor";
+import { getDoctors, createDoctor, deleteDoctor } from "../../../services/doctorService";
 import { useNavigate } from "react-router-dom"; // Cleaned up imports
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type CreateDoctorRequest, type SpecialistType } from '../../types/Doctor'; 
+import { type CreateDoctorRequest, type SpecialistType } from '../../../types/Doctor'; 
 
 interface DoctorFormProps {
   isOpen: boolean;
