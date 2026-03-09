@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { CreatePatientRequest, PatientDtoResponse } from '../../../types/Patient'; 
 import PatientForm from './PatientForm';
-import { getPatients, createPatient, deletePatient } from '../../../services/patientService';
+import { getPatients, createPatient, deletePatient } from '../../../services/adminServices/patient.service';
 import { useNavigate } from 'react-router-dom';
 
 // Color mapping for all patient types

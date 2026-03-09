@@ -1,5 +1,6 @@
-import apiClient from "../../lib/ApiClient";
-import type { CreateDoctorRequest } from "../types/Doctor";
+import apiClient from "../../../lib/ApiClient";
+
+import type { CreateDoctorRequest } from "../../types/Doctor";
 
 const BASE_URL = "/doctors";
 

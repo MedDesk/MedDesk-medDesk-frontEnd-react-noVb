@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { getDashboardStatistics } from '../../services/DashbaordStatistics';
-import { getAppointments } from '../../services/AppointmentService';
-import { getCurrentUser } from '../../services/Auth.service';
+import { getDashboardStatistics } from '../../../services/adminServices/Dashbaord.service';
+import { getAppointments } from '../../../services/adminServices/Appointment.service';
+import { getCurrentUser } from '../../../services/adminServices/Auth.service';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);

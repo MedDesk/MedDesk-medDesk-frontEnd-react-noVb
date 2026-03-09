@@ -1,9 +1,9 @@
-import apiClient from "../../lib/ApiClient";
+import apiClient from "../../../lib/ApiClient";
 import type { 
   CreatePatientRequest, 
   PatientDtoResponse, 
   ApiResponse 
-} from "../types/Patient";
+} from "../../types/Patient";
 
 const BASE_URL = "/patients";
 

@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import DashboardLayout from './layouts/DashboardLayout';
-import DashboardPage from './pages/dashboard/DashbaordPage';
+import DashboardPage from './pages/admin/dashboard/DashbaordPage';
 import PatientsPage from './pages/admin/patient/PatientsPage';
 import DoctorsPage from './pages/admin/doctor/DoctorsPage';
 import WorkingHoursPage from './pages/wokringHours/WokringHoursPage';

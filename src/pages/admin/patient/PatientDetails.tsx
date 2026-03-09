@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // Added updatePatient to your service imports
-import { getPatientById, updatePatient } from '../../../services/patientService';
+import { getPatientById, updatePatient } from '../../../services/adminServices/patient.service';
 import type { PatientDtoResponse } from '../../../types/Patient';
 
 export default function PatientDetails() {

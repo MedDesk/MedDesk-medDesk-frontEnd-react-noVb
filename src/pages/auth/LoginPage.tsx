@@ -11,7 +11,7 @@ import {
   ShieldCheck,
   AlertCircle 
 } from 'lucide-react';
-import { login } from "../../services/Auth.service"; 
+import { login } from "../../services/adminServices/Auth.service"; 
 
 export default function LoginPage() {
   const navigate = useNavigate();

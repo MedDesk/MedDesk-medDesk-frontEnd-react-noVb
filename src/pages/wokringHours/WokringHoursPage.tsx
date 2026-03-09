@@ -5,7 +5,7 @@ import {
   createWorkingHours, 
   updateWorkingHours, 
   deleteWorkingHours 
-} from "../../services/workingHours.ts";
+} from "../../services/adminServices/workingHours.service";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface WorkingHour {

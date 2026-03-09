@@ -11,7 +11,7 @@ import {
   Edit3,
   Globe
 } from 'lucide-react';
-import { getUserById } from '../../services/UserService';
+import { getUserById } from '../../services/adminServices/user.service';
 
 export default function MyProfilePage() {
   const [user, setUser] = useState<any>(null);

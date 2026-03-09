@@ -1,5 +1,4 @@
-import apiClient from "../../lib/ApiClient";
-
+import apiClient from "../../../lib/ApiClient";
 const BASE_URL = "/appointments";
 
 /**

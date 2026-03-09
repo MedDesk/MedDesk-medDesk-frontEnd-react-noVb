@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDoctorById, updateDoctor } from '../../../services/doctorService';
+import { getDoctorById, updateDoctor } from '../../../services/adminServices/Doctor.service';
 import { type CreateDoctorRequest } from '../../../types/Doctor';
 
 export default function DoctorDetails() {
