@@ -14,7 +14,7 @@ import UsersListPage from './pages/admin/usres/UsersListPage';
 import HomePage from './pages/home/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import exists
-import MyProfilePage from './pages/Profile/MyPrfilePage';
+import MyProfilePage from './pages/admin/Profile/MyPrfilePage';
 
 // --- GUARD COMPONENTS ---
 
