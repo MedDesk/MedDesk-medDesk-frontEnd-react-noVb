@@ -43,7 +43,7 @@ export default function Header() {
           </button>
           
           <div 
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate('/dashboard/profile')}
             className="flex items-center gap-3 pl-4 border-l border-slate-100 cursor-pointer group hover:bg-slate-50 py-1 px-2 rounded-2xl transition-all"
           >
             <div className="text-right hidden sm:block">

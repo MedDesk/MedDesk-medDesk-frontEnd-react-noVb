@@ -18,6 +18,10 @@ const navItems = [
 export default function Sidebar() {
   const location = useLocation();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+  }
   return (
     <aside className="w-64 bg-[#0F172A] text-slate-400 h-screen flex flex-col fixed left-0 top-0">
       <div className="p-6 flex items-center gap-3 text-white">
@@ -46,7 +50,8 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-slate-800">
-        <button className="flex items-center gap-3 text-red-400 px-4 py-3 hover:bg-red-500/10 w-full rounded-xl transition-all">
+        <button className="flex items-center gap-3 text-red-400 px-4 py-3 hover:bg-red-500/10 w-full rounded-xl transition-all"
+        onClick={()=>handleLogout()}>
           <i className="fa-solid fa-right-from-bracket"></i>
           <span className="font-medium">Logout</span>
         </button>

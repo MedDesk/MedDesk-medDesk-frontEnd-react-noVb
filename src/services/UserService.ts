@@ -55,4 +55,15 @@ export const deleteUser = async (id: number) => {
     console.error(`Error deleting user ${id}:`, error);
     throw error;
   }
-};  
+};
+
+
+export const getUserById = async (id: number) => {
+  try {
+    const response = await apiClient.get(`${BASE_URL}/${id}`);
+    return response.data; // This returns the object you showed me
+  } catch (error) {
+    console.error(`Error fetching user ${id}:`, error);
+    throw error;
+  }
+};

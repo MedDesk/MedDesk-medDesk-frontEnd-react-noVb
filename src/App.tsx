@@ -14,6 +14,7 @@ import UsersListPage from './pages/usres/UsersListPage';
 import HomePage from './pages/home/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import exists
+import MyProfilePage from './pages/Profile/MyPrfilePage';
 
 // --- GUARD COMPONENTS ---
 
@@ -70,6 +71,7 @@ function App() {
             <Route path="prescriptions" element={<Placeholder name="Prescriptions" />} />
             <Route path="departments" element={<Placeholder name="Departments" />} />
             <Route path="records" element={<Placeholder name="Medical Records" />} />
+            <Route path='profile' element = {<MyProfilePage/>} />
           </Route>
         </Route>
 
