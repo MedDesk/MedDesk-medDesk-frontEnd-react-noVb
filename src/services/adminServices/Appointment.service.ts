@@ -54,6 +54,7 @@ export const updateAppointmentStatus = async (id: number, data: any) => {
   }
 };
 /**
+ * 
  * 4. Delete an appointment
  */
 export const deleteAppointment = async (id: number) => {
