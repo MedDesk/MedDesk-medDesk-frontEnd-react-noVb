@@ -26,7 +26,7 @@ interface Slot {
   endTime: string;
   available: boolean;
 }
-
+// each status has a color, bg, border and icon too
 const STATUS_MAP: Record<AppointmentStatus, { color: string; bg: string; border: string; icon: string }> = {
   SCHEDULED: { color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', icon: 'fa-clock' },
   CONFIRMED: { color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', icon: 'fa-circle-check' },

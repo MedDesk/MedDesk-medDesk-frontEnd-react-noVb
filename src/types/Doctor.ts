@@ -15,7 +15,7 @@ export interface DoctorDto {
   address: string;
   emergency_contact: string;
   license_number: string;
-  specialist: string; // Or SpecialistType if you want it strict
+  specialist: string; 
   cin: string;
 }
 
