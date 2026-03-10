@@ -19,6 +19,7 @@ export const createPatient = async (data: CreatePatientRequest):Promise<ApiRespo
 };
 
 
+
 export const getPatients = async (page: number, size: number): Promise<ApiResponse<{
     content: PatientDtoResponse[];
     totalPages: number;
@@ -41,6 +42,7 @@ export const getPatients = async (page: number, size: number): Promise<ApiRespon
 /**
  * Get a single patient by ID
  */
+
 export const getPatientById = async (id: number): Promise<ApiResponse<PatientDtoResponse>> => {
     try {
         const response = await apiClient.get<ApiResponse<PatientDtoResponse>>(`${BASE_URL}/${id}`);
@@ -63,6 +65,7 @@ export const updatePatient = async (id: number, data: Partial<CreatePatientReque
         throw error;
     }
 };
+
 
 /**
  * Delete a patient
