@@ -113,6 +113,7 @@ export default function WorkingHoursPage() {
         </button> */}
       </div>
 
+
       {/* Week Timeline Strip */}
       <div className="bg-white rounded-3xl p-6 shadow-sm mb-8 flex gap-2 overflow-x-auto border border-slate-100">
         {ALL_DAYS.map((day) => {
