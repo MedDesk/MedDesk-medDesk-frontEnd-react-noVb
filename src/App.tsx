@@ -15,6 +15,8 @@ import HomePage from './pages/home/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import exists
 import MyProfilePage from './pages/admin/Profile/MyPrfilePage';
+import MyAppointmentsPage from './pages/patient/appointmemts/AppointmentPage';
+import CreateMedicalRecord from './pages/admin/medicalRecords/CreateMedicalRecord';
 
 // --- GUARD COMPONENTS ---
 
@@ -71,7 +73,11 @@ function App() {
             <Route path="prescriptions" element={<Placeholder name="Prescriptions" />} />
             <Route path="departments" element={<Placeholder name="Departments" />} />
             <Route path="records" element={<Placeholder name="Medical Records" />} />
+            <Route path="insert/medical-records/:patientId" element={<CreateMedicalRecord />} />
             <Route path='profile' element = {<MyProfilePage/>} />
+
+            {/* for patient to display appointments of the authenticated patient */}
+            <Route path='myAppointments' element={<MyAppointmentsPage/>} />
           </Route>
         </Route>
 
