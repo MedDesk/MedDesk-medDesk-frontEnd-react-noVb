@@ -278,6 +278,7 @@ function StatCard({ label, val, color, bg }: any) {
   );
 }
 
+
 function StatusBadge({ status }: { status: AppointmentStatus }) {
   const cfg = STATUS_MAP[status];
   return (
