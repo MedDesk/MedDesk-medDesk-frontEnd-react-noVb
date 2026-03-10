@@ -1,0 +1,1 @@
+// i have to disokay the profile page for the patient because i have to implement the update profile feature and i need to make some changes in the backend to make it work, so for now i will just create a placeholder page for the profile page and i will implement it later when i have time
