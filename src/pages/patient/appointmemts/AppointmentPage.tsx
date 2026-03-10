@@ -266,7 +266,7 @@ export default function PatientAppointmentsPage() {
   );
 }
 
-// ─── Sub-Components ───
+// ─ Sub-Components ─
 
 function StatCard({ label, val, color, bg }: any) {
   return (
