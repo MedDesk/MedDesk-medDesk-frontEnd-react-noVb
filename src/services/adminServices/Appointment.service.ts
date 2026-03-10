@@ -53,10 +53,7 @@ export const updateAppointmentStatus = async (id: number, data: any) => {
     throw error;
   }
 };
-/**
- * 
- * 4. Delete an appointment
- */
+
 export const deleteAppointment = async (id: number) => {
   try {
     const response = await apiClient.delete(`${BASE_URL}/${id}`);
@@ -82,7 +79,7 @@ export const getWeeklyAvailability = async () => {
 };
 
 /**
- * 6. Get Day Availability for a specific date
+  *Get Day Availability for a specific date
  * Endpoint: /appointments/availability?date=YYYY-MM-DD
  */
 export const getDayAvailability = async (date: string) => {
