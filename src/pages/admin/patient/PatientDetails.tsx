@@ -151,26 +151,44 @@ export default function PatientDetails() {
                   </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-blue-600 rounded-[2rem] p-8 text-white shadow-xl shadow-blue-200">
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-80">Recent Activity</h4>
-                      <p className="text-sm font-bold leading-relaxed">No recent medical record found for this patient.</p>
-                      <button className="mt-6 bg-white text-blue-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-50 transition-colors"
-                    onClick={() => navigate(`/dashboard/medical-records/${patient.id}`)}>
-                          Create Medical Record
-                      </button>
-                  </div>
-                  <div className="bg-slate-800 rounded-[2rem] p-8 text-white">
-                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-60">Insurance & Coverage</h4>
-                      <div className="flex items-center gap-4">
-                          <i className="fa-solid fa-file-invoice-dollar text-2xl text-blue-400"></i>
-                          <div>
-                              <p className="text-[10px] font-bold opacity-60 uppercase">Coverage Status</p>
-                              <p className="text-sm font-black">{patient.cnss ? 'Active Coverage (CNSS)' : 'Private / Cash Pay'}</p>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* Recent Activity Card */}
+    <div className="bg-blue-600 rounded-[2rem] p-8 text-white shadow-xl shadow-blue-200">
+        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-80 text-white/70">Recent Activity</h4>
+        <p className="text-sm font-bold leading-relaxed">No recent medical record found for this patient.</p>
+        
+        <div className="mt-6 flex flex-wrap gap-3">
+            {/* Create Button */}
+            <button 
+                className="bg-white text-blue-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-blue-50 transition-all active:scale-95 shadow-lg shadow-blue-700/20"
+                onClick={() => navigate(`/dashboard/insert/medical-records/${patient.id}`)}
+            >
+                Create Medical Record
+            </button>
+
+            {/* View History Button (New) */}
+            <button 
+                className="bg-white/10 border border-white/20 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase hover:bg-white/20 transition-all active:scale-95 flex items-center gap-2"
+                onClick={() => navigate(`/dashboard/medical-records/${patient.id}`)}
+            >
+                <i className="fa-solid fa-eye"></i>
+                View Medical Records
+            </button>
+        </div>
+    </div>
+
+    {/* Insurance Card */}
+    <div className="bg-slate-800 rounded-[2rem] p-8 text-white">
+        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 opacity-60">Insurance & Coverage</h4>
+        <div className="flex items-center gap-4">
+            <i className="fa-solid fa-file-invoice-dollar text-2xl text-blue-400"></i>
+            <div>
+                <p className="text-[10px] font-bold opacity-60 uppercase">Coverage Status</p>
+                <p className="text-sm font-black">{patient.cnss ? 'Active Coverage (CNSS)' : 'Private / Cash Pay'}</p>
+            </div>
+        </div>
+    </div>
+</div>
             </div>
           </div>
         ) : (

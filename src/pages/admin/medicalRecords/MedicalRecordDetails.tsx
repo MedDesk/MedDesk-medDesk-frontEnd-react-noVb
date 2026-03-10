@@ -1,503 +1,998 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import React, { useState, useEffect } from "react";
+// import { useParams, useNavigate } from "react-router-dom";
 
-// ─── Types ─────────────────────────────────────────────────────────────────────
-interface VitalDto {
-  medicalRecordId: number;
-  systolicBP: number;
-  diastolicBP: number;
-  heartRate: number;
-  respirationRate: number;
-  spo2: number;
-  temperature: number;
-  weight: number;
-  height: number;
-  bloodGroup: string;
-  ambulationHistory: string;
-  hasFeverHistory: boolean;
-  bloodSugar: number;
-  recordedAt: string;
-}
+// import { getMedicalRecords } from "../../../services/patientServices/medicalRecords.service";
+// import { createVitals, getVitalsById } from "../../../services/adminServices/vitals.service";
 
-// ─── Mock Data ─────────────────────────────────────────────────────────────────
-const MOCK_RECORD = {
-  id: 1,
-  patient: { id: 3, name: "Ali Hassan", age: 34, gender: "Male", avatar: "https://i.pravatar.cc/150?u=ali" },
-  doctor: "Dr. Mustapha Elalami",
-  nurse: "Fatima Zahra",
-  appointmentId: 3,
-  appointmentDate: "March 06, 2026",
-  vitalId: 101,
-  nurseId: 1,
-  doctorId: 4,
-};
+// // ── Blood Group Options ──────────────────────────────────────
+// const BLOOD_GROUPS = [
+//   { value: "A_POSITIVE",  label: "A+"      },
+//   { value: "A_NEGATIVE",  label: "A-"      },
+//   { value: "B_POSITIVE",  label: "B+"      },
+//   { value: "B_NEGATIVE",  label: "B-"      },
+//   { value: "AB_POSITIVE", label: "AB+"     },
+//   { value: "AB_NEGATIVE", label: "AB-"     },
+//   { value: "O_POSITIVE",  label: "O+"      },
+//   { value: "O_NEGATIVE",  label: "O-"      },
+//   { value: "UNKNOWN",     label: "Unknown" },
+// ];
 
-const MOCK_VITAL: VitalDto = {
-  medicalRecordId: 1,
-  systolicBP: 120,
-  diastolicBP: 80,
-  heartRate: 72,
-  respirationRate: 16,
-  spo2: 98,
-  temperature: 36.6,
-  weight: 75.5,
-  height: 178.0,
-  bloodGroup: "O_POSITIVE",
-  ambulationHistory: "Patient is walking independently without assistance.",
-  hasFeverHistory: false,
-  bloodSugar: 95.0,
-  recordedAt: "2023-10-27T10:30:00",
-};
+// // ── Default Vitals Form Values ───────────────────────────────
+// const DEFAULT_FORM = {
+//   systolicBP:        120,
+//   diastolicBP:       80,
+//   heartRate:         72,
+//   respirationRate:   16,
+//   spo2:              98,
+//   temperature:       36.6,
+//   weight:            70.0,
+//   height:            170.0,
+//   bloodGroup:        "UNKNOWN",
+//   ambulationHistory: "",
+//   hasFeverHistory:   false,
+//   bloodSugar:        90.0,
+//   recordedAt:        new Date().toISOString().slice(0, 16),
+// };
+
+// function HumanBodySVG({ hasFever }: { hasFever: boolean }) {
+//   return (
+//     <div className="flex flex-col items-center gap-3">
+//       {hasFever && (
+//         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">
+//           <i className="fa-solid fa-fire text-xs"></i> Fever Detected
+//         </span>
+//       )}
+
+//       <svg viewBox="0 0 100 260" width="110" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm">
+//         <circle
+//           cx="50" cy="28" r="22"
+//           fill={hasFever ? "#ef4444" : "#fcd5b5"}
+//           stroke={hasFever ? "#b91c1c" : "#e8b48a"}
+//           strokeWidth="1.5"
+//           style={hasFever ? { animation: "pulse 1s infinite" } : {}}
+//         />
+//         <circle cx="43" cy="25" r="2.5" fill={hasFever ? "#fff" : "#666"} />
+//         <circle cx="57" cy="25" r="2.5" fill={hasFever ? "#fff" : "#666"} />
+//         {hasFever
+//           ? <path d="M43 35 Q50 31 57 35" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+//           : <path d="M43 33 Q50 37 57 33" stroke="#c49a6c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+//         }
+//         {hasFever && (
+//           <text x="50" y="19" textAnchor="middle" fontSize="9" fill="#fff">🌡</text>
+//         )}
+//         <rect x="44" y="49" width="12" height="10" rx="4" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+//         <rect x="30" y="58" width="40" height="55" rx="10" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="1.5" />
+//         <polyline
+//           points="33,83 39,83 42,74 45,92 48,83 55,83 58,78 61,83 67,83"
+//           fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9"
+//         />
+//         <rect x="14" y="60" width="14" height="48" rx="7" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1.2" />
+//         <ellipse cx="21" cy="113" rx="7" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+//         <rect x="72" y="60" width="14" height="48" rx="7" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1.2" />
+//         <ellipse cx="79" cy="113" rx="7" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+//         <rect x="30" y="112" width="18" height="70" rx="9" fill="#3b82f6" stroke="#2563eb" strokeWidth="1.2" opacity="0.8" />
+//         <ellipse cx="39" cy="186" rx="10" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+//         <rect x="52" y="112" width="18" height="70" rx="9" fill="#3b82f6" stroke="#2563eb" strokeWidth="1.2" opacity="0.8" />
+//         <ellipse cx="61" cy="186" rx="10" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+//         <circle cx="21" cy="103" r="3" fill="#3b82f6">
+//           <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+//         </circle>
+//         <circle cx="50" cy="83" r="3" fill="#ef4444">
+//           <animate attributeName="r" values="2;4;2" dur="0.9s" repeatCount="indefinite" />
+//         </circle>
+//       </svg>
+
+//       <div className="flex gap-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+//         <span className="flex items-center gap-1">
+//           <span className="w-2 h-2 rounded-full bg-red-400 inline-block"></span> Heart
+//         </span>
+//         <span className="flex items-center gap-1">
+//           <span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span> SpO2
+//         </span>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default function PatientArchivePage() {
+//   const { id }   = useParams();
+//   const navigate = useNavigate();
+
+//   const [records,          setRecords]          = useState<any[]>([]);
+//   const [selectedRecord,   setSelectedRecord]   = useState<any>(null);
+//   const [vitalsData,       setVitalsData]       = useState<any>(null);
+//   const [formData,         setFormData]         = useState({ ...DEFAULT_FORM });
+//   const [loading,          setLoading]          = useState(true);
+//   const [workspaceLoading, setWorkspaceLoading] = useState(false);
+//   const [isSubmitting,     setIsSubmitting]     = useState(false);
+//   const [successMsg,       setSuccessMsg]       = useState("");
+
+//   useEffect(() => { if (id) fetchRecords(); }, [id]);
+
+//   async function fetchRecords() {
+//     setLoading(true);
+//     try {
+//       const response = await getMedicalRecords(Number(id));
+//       setRecords(response.data?.content || response.data || []);
+//     } catch (err) { console.error(err); } 
+//     finally { setLoading(false); }
+//   }
+
+//   async function handleOpenRecord(rec: any) {
+//     setSelectedRecord(rec);
+//     setVitalsData(null);
+//     setSuccessMsg("");
+//     window.scrollTo({ top: 0, behavior: "smooth" });
+
+//     if (rec.vitalId) {
+//       setWorkspaceLoading(true);
+//       try {
+//         const res = await getVitalsById(rec.vitalId);
+//         setVitalsData(res.data || res);
+//       } catch (err) { console.error(err); } 
+//       finally { setWorkspaceLoading(false); }
+//     } else {
+//       setFormData({ ...DEFAULT_FORM });
+//     }
+//   }
+
+//   async function handleSubmit(e: React.FormEvent) {
+//     e.preventDefault();
+//     setIsSubmitting(true);
+//     try {
+//       const payload = { ...formData, medicalRecordId: selectedRecord.id, recordedAt: formData.recordedAt + ":00" };
+//       const res = await createVitals(payload);
+//       if (res.success) {
+//         setSuccessMsg("Vitals saved successfully!");
+//         await fetchRecords();
+//         setSelectedRecord(null);
+//       }
+//     } catch (err) { alert("Error saving vitals."); } 
+//     finally { setIsSubmitting(false); }
+//   }
+
+//   if (loading) return (
+//     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
+//       <i className="fa-solid fa-heart-pulse text-blue-600 text-5xl animate-pulse"></i>
+//       <p className="text-slate-400 font-semibold tracking-widest text-sm uppercase">Loading Archive...</p>
+//     </div>
+//   );
+
+//   return (
+//     <div className="min-h-screen bg-slate-50 text-slate-800">
+//       {/* ── HEADER (Updated to 95%) ── */}
+//       <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+//         <div className="max-w-[95%] mx-auto px-6 py-4 flex items-center justify-between">
+//           <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors text-sm font-medium">
+//             <i className="fa-solid fa-arrow-left"></i> Back
+//           </button>
+//           <div className="flex items-center gap-3">
+//             <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+//               <i className="fa-solid fa-notes-medical text-blue-600"></i>
+//             </div>
+//             <h1 className="text-base font-bold text-slate-800 leading-none tracking-tight">Clinical Workspace Patient #{id}</h1>
+//           </div>
+//           <div className="flex items-center gap-2 text-slate-400 text-sm font-bold uppercase tracking-tighter">
+//             <i className="fa-solid fa-folder-open text-blue-500"></i>
+//             <span>{records.length} Records</span>
+//           </div>
+//         </div>
+//       </header>
+
+//       <main className="max-w-[95%] mx-auto px-6 py-10 space-y-10">
+//         {successMsg && (
+//           <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-700 px-5 py-3 rounded-2xl text-sm font-medium shadow-sm animate-in slide-in-from-top-4">
+//             <i className="fa-solid fa-circle-check text-blue-500"></i>
+//             {successMsg}
+//           </div>
+//         )}
+
+//         {!selectedRecord ? (
+//           <div className="border-2 border-dashed border-slate-200 rounded-3xl p-20 text-center bg-white hover:border-blue-300 transition-colors">
+//             <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+//               <i className="fa-solid fa-folder-magnifying-glass text-slate-300 text-3xl"></i>
+//             </div>
+//             <p className="text-slate-400 text-sm font-medium">Select a medical record folder from the clinical timeline to open workspace</p>
+//           </div>
+//         ) : workspaceLoading ? (
+//           <div className="bg-white rounded-3xl p-20 text-center border border-slate-100"><i className="fa-solid fa-spinner text-blue-500 text-3xl animate-spin"></i></div>
+//         ) : vitalsData ? (
+//           <ReadModeWorkspace record={selectedRecord} vitals={vitalsData} onClose={() => setSelectedRecord(null)} />
+//         ) : (
+//           <CreateModeWorkspace record={selectedRecord} formData={formData} setFormData={setFormData} isSubmitting={isSubmitting} onSubmit={handleSubmit} onClose={() => setSelectedRecord(null)} />
+//         )}
+
+//         <RecordsTable records={records} selectedId={selectedRecord?.id} onOpen={handleOpenRecord} />
+//       </main>
+//     </div>
+//   );
+// }
+
+// // ── READ MODE ──
+// function ReadModeWorkspace({ record, vitals, onClose }: any) {
+//   return (
+//     <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-lg animate-in zoom-in-95">
+//       <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-blue-50">
+//         <div className="flex items-center gap-4 text-blue-700">
+//           <i className="fa-solid fa-shield-heart text-lg"></i>
+//           <span className="font-bold">Authorized Record View: #REC-{record.id}</span>
+//         </div>
+//         <button onClick={onClose} className="text-slate-400 hover:text-slate-700 w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white transition-colors"><i className="fa-solid fa-xmark text-lg"></i></button>
+//       </div>
+//       <div className="grid grid-cols-1 lg:grid-cols-12">
+//         <div className="lg:col-span-4 bg-slate-50 border-r border-slate-100 flex flex-col items-center justify-center p-10 gap-5">
+//           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-start">Biometric Mapping</p>
+//           <HumanBodySVG hasFever={vitals.hasFeverHistory} />
+//           <div className="grid grid-cols-2 gap-3 w-full">
+//             <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center shadow-sm">
+//                 <p className="text-[9px] text-slate-400 font-bold uppercase">Heart</p>
+//                 <p className="text-rose-500 font-bold text-base">{vitals.heartRate} <span className="text-[9px]">bpm</span></p>
+//             </div>
+//             <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center shadow-sm">
+//                 <p className="text-[9px] text-slate-400 font-bold uppercase">Temp</p>
+//                 <p className={`font-bold text-base ${vitals.hasFeverHistory ? 'text-red-500' : 'text-blue-600'}`}>{vitals.temperature}°C</p>
+//             </div>
+//           </div>
+//         </div>
+//         <div className="lg:col-span-8 p-8 space-y-6">
+//           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+//             <VitalCard icon="fa-solid fa-bolt" iconColor="text-blue-600" bg="bg-blue-50/50 border-blue-100" label="Blood Pressure" value={`${vitals.systolicBP}/${vitals.diastolicBP}`} unit="mmHg" />
+//             <VitalCard icon="fa-solid fa-droplet" iconColor="text-blue-500" bg="bg-blue-50/30 border-blue-50" label="SpO2" value={vitals.spo2} unit="%" />
+//             <VitalCard icon="fa-solid fa-syringe" iconColor="text-blue-400" bg="bg-blue-50/20 border-blue-50" label="Blood Sugar" value={vitals.bloodSugar} unit="mg/dL" />
+//             <VitalCard icon="fa-solid fa-lungs" iconColor="text-blue-600" bg="bg-blue-50 border-blue-100" label="Respiration" value={vitals.respirationRate} unit="br/min" />
+//             <VitalCard icon="fa-solid fa-weight-scale" iconColor="text-slate-700" bg="bg-slate-100 border-slate-200" label="Weight" value={vitals.weight} unit="kg" />
+//             <VitalCard icon="fa-solid fa-ruler-vertical" iconColor="text-slate-500" bg="bg-slate-50 border-slate-200" label="Height" value={vitals.height} unit="cm" />
+//           </div>
+//           {vitals.ambulationHistory && (
+//             <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+//               <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Observations</p>
+//               <p className="text-slate-600 text-sm leading-relaxed">{vitals.ambulationHistory}</p>
+//             </div>
+//           )}
+//           <div className="flex gap-3">
+//              <span className="px-4 py-1.5 rounded-xl border bg-blue-50 border-blue-100 text-blue-600 text-xs font-bold uppercase">Blood: {vitals.bloodGroup?.replace('_',' ')}</span>
+//              {vitals.hasFeverHistory && <span className="px-4 py-1.5 rounded-xl border bg-red-50 border-red-200 text-red-600 text-xs font-bold uppercase animate-pulse">Fever Alert</span>}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// // ── CREATE MODE ──
+// function CreateModeWorkspace({ record, formData, setFormData, isSubmitting, onSubmit, onClose }: any) {
+//   const set = (field: string, val: any) => setFormData({ ...formData, [field]: val });
+//   return (
+//     <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl animate-in slide-in-from-top-4">
+//       <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-blue-600 text-white">
+//         <div className="flex items-center gap-4">
+//           <i className="fa-solid fa-stethoscope text-lg"></i>
+//           <span className="font-bold">Input Clinical Vitals: #REC-{record.id}</span>
+//         </div>
+//         <button onClick={onClose} className="p-2 hover:bg-black/10 rounded-full transition-colors">X</button>
+//       </div>
+//       <div className="grid grid-cols-1 lg:grid-cols-12">
+//         <div className="lg:col-span-4 bg-slate-50 border-r border-slate-100 flex flex-col items-center justify-center p-10 gap-5">
+//           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-start">Biometric Preview</p>
+//           <HumanBodySVG hasFever={formData.hasFeverHistory} />
+//         </div>
+//         <div className="lg:col-span-8 p-8">
+//           <form onSubmit={onSubmit} className="space-y-5">
+//             <div className="grid grid-cols-2 gap-4">
+//               <FormInput label="Systolic BP" icon="fa-solid fa-bolt" type="number" value={formData.systolicBP} onChange={(v: string) => set("systolicBP", +v)} />
+//               <FormInput label="Diastolic BP" icon="fa-solid fa-bolt" type="number" value={formData.diastolicBP} onChange={(v: string) => set("diastolicBP", +v)} />
+//               <FormInput label="Heart Rate" icon="fa-solid fa-heart-pulse" type="number" value={formData.heartRate} onChange={(v: string) => set("heartRate", +v)} />
+//               <FormInput label="SpO2 (%)" icon="fa-solid fa-droplet" type="number" value={formData.spo2} onChange={(v: string) => set("spo2", +v)} />
+//               <FormInput label="Temperature (°C)" icon="fa-solid fa-temperature-half" type="number" step="0.1" value={formData.temperature} onChange={(v: string) => set("temperature", +v)} />
+//               <div className="space-y-2">
+//                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block"><i className="fa-solid fa-droplet mr-2 text-blue-500"></i>Blood Group</label>
+//                 <select value={formData.bloodGroup} onChange={(e) => set("bloodGroup", e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none">
+//                   {BLOOD_GROUPS.map(bg => <option key={bg.value} value={bg.value}>{bg.label}</option>)}
+//                 </select>
+//               </div>
+//               <FormInput label="Weight (kg)" icon="fa-solid fa-weight-scale" type="number" step="0.1" value={formData.weight} onChange={(v: string) => set("weight", +v)} />
+//               <FormInput label="Height (cm)" icon="fa-solid fa-ruler-vertical" type="number" value={formData.height} onChange={(v: string) => set("height", +v)} />
+//             </div>
+//             <div className="flex justify-between items-center gap-4">
+//                 <button type="button" onClick={() => set("hasFeverHistory", !formData.hasFeverHistory)} className={`flex-1 py-3 rounded-xl border font-bold text-xs transition-all ${formData.hasFeverHistory ? 'bg-red-500 border-red-500 text-white shadow-lg' : 'bg-slate-50 border-slate-200 text-slate-400 hover:border-blue-400'}`}>
+//                     <i className="fa-solid fa-fire mr-2"></i>{formData.hasFeverHistory ? 'Fever History: Active' : 'No Fever History'}
+//                 </button>
+//                 <button type="submit" disabled={isSubmitting} className="flex-[2] bg-blue-600 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl transition-all disabled:opacity-50">
+//                     {isSubmitting ? 'Processing...' : 'Synchronize Vitals'}
+//                 </button>
+//             </div>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// // ── TABLE COMPONENT ──
+// function RecordsTable({ records, selectedId, onOpen }: any) {
+//   return (
+//     <div className="space-y-4">
+//       <h2 className="text-xl font-bold text-slate-800 flex items-center gap-4">
+//         <i className="fa-solid fa-timeline text-blue-600"></i> Clinical Timeline <div className="flex-1 h-px bg-slate-200"></div>
+//       </h2>
+//       <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm">
+//         <table className="w-full">
+//           <thead>
+//             <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50">
+//               <th className="text-left px-10 py-6">Medical Reference</th>
+//               <th className="text-center px-10 py-6">Clinical Team</th>
+//               <th className="text-center px-10 py-6">Status</th>
+//               <th className="text-right px-10 py-6">Actions</th>
+//             </tr>
+//           </thead>
+//           <tbody className="divide-y divide-slate-50">
+//             {records.map((rec: any) => (
+//               <tr key={rec.id} className={`transition-colors ${selectedId === rec.id ? 'bg-blue-50/50' : 'hover:bg-slate-50'}`}>
+//                 <td className="px-10 py-6">
+//                   <div className="flex items-center gap-6">
+//                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${selectedId === rec.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-slate-100 text-slate-400'}`}>
+//                       <i className="fa-solid fa-file-waveform text-xl"></i>
+//                     </div>
+//                     <div>
+//                       <p className="text-xs text-slate-400 font-medium uppercase mb-1">Created: {rec.createdDate || 'Mar 2026'}</p>
+//                       <p className="text-lg font-black text-slate-800 leading-none">#REC-{rec.id}</p>
+//                     </div>
+//                   </div>
+//                 </td>
+//                 <td className="px-10 py-6 text-center space-x-2">
+//                   <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-bold border border-blue-100 uppercase tracking-widest">Dr {rec.doctorId}</span>
+//                   <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-bold border border-slate-200 uppercase tracking-widest">Ns {rec.nurseId}</span>
+//                 </td>
+//                 <td className="px-10 py-6 text-center">
+//                   {rec.vitalId ? 
+//                     <span className="text-blue-600 font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-1"><i className="fa-solid fa-check-circle"></i> Logged</span> :
+//                     <span className="text-slate-300 font-bold text-[10px] uppercase tracking-widest italic">Pending</span>
+//                   }
+//                 </td>
+//                 <td className="px-10 py-6 text-right">
+//                   <button onClick={() => onOpen(rec)} className={`px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all ${selectedId === rec.id ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-slate-100 text-slate-500 hover:bg-blue-600 hover:text-white'}`}>
+//                     {selectedId === rec.id ? 'Active' : 'Open'}
+//                   </button>
+//                 </td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function VitalCard({ icon, iconColor, bg, label, value, unit }: any) {
+//   return (
+//     <div className={`border rounded-[1.5rem] p-5 space-y-3 transition-all hover:shadow-md ${bg}`}>
+//       <i className={`${icon} ${iconColor} text-lg`}></i>
+//       <div>
+//         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+//         <p className="text-slate-800 font-black text-lg leading-none">{value}<span className="text-slate-400 text-xs font-medium ml-1">{unit}</span></p>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function FormInput({ label, icon, type, step, value, onChange }: any) {
+//   return (
+//     <div className="space-y-2">
+//       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block"><i className={`${icon} mr-2 text-blue-500`}></i>{label}</label>
+//       <input required type={type} step={step} value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-400 outline-none transition-all" />
+//     </div>
+//   );
+// }
+
+// ============================================================
+// PatientArchivePage.tsx — With Full Error Handling UI
+// Parses API errors like: { success: false, message: "...", status: 400 }
+// Font Awesome CDN in index.html:
+// <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+// ============================================================
+
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+import { getMedicalRecords } from "../../../services/patientServices/medicalRecords.service";
+import { createVitals, getVitalsById } from "../../../services/adminServices/vitals.service";
 
 const BLOOD_GROUPS = [
-  "A_POSITIVE", "A_NEGATIVE", "B_POSITIVE", "B_NEGATIVE",
-  "AB_POSITIVE", "AB_NEGATIVE", "O_POSITIVE", "O_NEGATIVE",
+  { value: "A_POSITIVE",  label: "A+"      },
+  { value: "A_NEGATIVE",  label: "A-"      },
+  { value: "B_POSITIVE",  label: "B+"      },
+  { value: "B_NEGATIVE",  label: "B-"      },
+  { value: "AB_POSITIVE", label: "AB+"     },
+  { value: "AB_NEGATIVE", label: "AB-"     },
+  { value: "O_POSITIVE",  label: "O+"      },
+  { value: "O_NEGATIVE",  label: "O-"      },
+  { value: "UNKNOWN",     label: "Unknown" },
 ];
 
-// ─── Vital status helpers ──────────────────────────────────────────────────────
-function vitalStatus(key: string, val: number): "normal" | "warning" | "critical" {
-  const ranges: Record<string, [number, number]> = {
-    heartRate: [60, 100], systolicBP: [90, 130], diastolicBP: [60, 85],
-    spo2: [95, 100], temperature: [36.1, 37.2], bloodSugar: [70, 100],
-    respirationRate: [12, 20],
-  };
-  const r = ranges[key];
-  if (!r) return "normal";
-  if (val < r[0] || val > r[1])
-    return val < r[0] * 0.9 || val > r[1] * 1.1 ? "critical" : "warning";
-  return "normal";
-}
-
-const NORMAL_RANGES: Record<string, string> = {
-  heartRate: "60–100 bpm", systolicBP: "90–130 mmHg", spo2: "95–100%",
-  temperature: "36.1–37.2°C", bloodSugar: "70–100 mg/dL",
-  respirationRate: "12–20/min", diastolicBP: "60–85 mmHg",
+const DEFAULT_FORM = {
+  systolicBP: 120, diastolicBP: 80, heartRate: 72, respirationRate: 16,
+  spo2: 98, temperature: 36.6, weight: 70.0, height: 170.0,
+  bloodGroup: "UNKNOWN", ambulationHistory: "", hasFeverHistory: false,
+  bloodSugar: 90.0, recordedAt: new Date().toISOString().slice(0, 16),
 };
 
-// Per-status Tailwind classes
-const ST = {
-  normal:   { border: "border-l-green-600",  iconBg: "bg-green-50",   iconTx: "text-green-600",   pillBg: "bg-green-50",   pillTx: "text-green-600",   svg: "#16a34a", label: "Normal"   },
-  warning:  { border: "border-l-amber-600",  iconBg: "bg-amber-50",   iconTx: "text-amber-600",   pillBg: "bg-amber-50",   pillTx: "text-amber-600",   svg: "#d97706", label: "Watch"    },
-  critical: { border: "border-l-red-600",    iconBg: "bg-red-50",     iconTx: "text-red-600",     pillBg: "bg-red-50",     pillTx: "text-red-600",     svg: "#dc2626", label: "Critical" },
+// ============================================================
+// ERROR PARSER
+// Takes the raw caught error and extracts a clean object.
+// Handles the API format:
+//   { success: false, message: "fieldName: Human readable message", status: 400, path, timestamp }
+// ============================================================
+type ParsedError = {
+  title: string;
+  message: string;
+  field?: string;      // e.g. "ambulationHistory" — used to highlight the matching input
+  status?: number;
+  path?: string;
+  timestamp?: string;
 };
 
-// shared input className
-const INP = [
-  "w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50",
-  "text-slate-800 text-sm font-medium outline-none transition-all appearance-none",
-  "focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100",
-].join(" ");
+function parseApiError(err: any): ParsedError {
+  // Axios wraps the response under err.response.data
+  // Fetch errors may put it directly on err.data
+  const data = err?.response?.data || err?.data || null;
 
-// ─── Sparkline ─────────────────────────────────────────────────────────────────
-function Spark({ color }: { color: string }) {
-  const pts = [0,3,1,5,4,2,6,4,3,2,5,3,8,1,6,4,10,2,9,5,12,3]
-    .reduce((acc, y, i) => acc + (i % 2 === 0 ? `${i * 5},${20 - y * 2} ` : ""), "");
-  return (
-    <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
-      <polyline points={pts} stroke={color} strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.7" />
-    </svg>
-  );
+  if (data && data.success === false) {
+    const rawMessage: string = data.message || "An unknown error occurred";
+
+    // API sends messages like "ambulationHistory: Ambulation history is required"
+    // We split on the first ": " to extract the field name separately
+    const colonIndex = rawMessage.indexOf(": ");
+    let field: string | undefined;
+    let message: string;
+
+    if (colonIndex !== -1) {
+      field   = rawMessage.slice(0, colonIndex);   // "ambulationHistory"
+      message = rawMessage.slice(colonIndex + 2);  // "Ambulation history is required"
+    } else {
+      message = rawMessage;
+    }
+
+    return { title: `Error ${data.status || ""}`, message, field, status: data.status, path: data.path, timestamp: data.timestamp };
+  }
+
+  // Generic fallback (network error, unexpected shape, etc.)
+  return { title: "Request Failed", message: err?.message || "Something went wrong. Please try again." };
 }
 
-// ─── Body SVG Map ──────────────────────────────────────────────────────────────
-function BodyMap({ onRegionClick }: { onRegionClick: (r: string) => void }) {
-  const dots = [
-    { id: "head",    cx: 130, cy: 55,  color: "#f59e0b" },
-    { id: "chest",   cx: 130, cy: 130, color: "#ef4444" },
-    { id: "abdomen", cx: 130, cy: 185, color: "#3b82f6" },
-    { id: "leftarm", cx: 88,  cy: 140, color: "#8b5cf6" },
-    { id: "legs",    cx: 130, cy: 265, color: "#10b981" },
-  ];
+// ============================================================
+// ERROR BANNER COMPONENT
+// A dismissible red card showing: title, message, field badge,
+// status code, API path, and timestamp
+// ============================================================
+function ErrorBanner({ error, onDismiss }: { error: ParsedError; onDismiss: () => void }) {
   return (
-    <svg viewBox="0 60 260 290" width="100%" style={{ maxWidth: 220 }}>
-      <g opacity="0.18" fill="#60a5fa">
-        <ellipse cx="130" cy="75"  rx="28" ry="30" />
-        <rect x="120" y="103" width="20" height="14" rx="4"  />
-        <rect x="90"  y="117" width="80" height="90" rx="14" />
-        <rect x="66"  y="122" width="22" height="72" rx="11" />
-        <rect x="172" y="122" width="22" height="72" rx="11" />
-        <rect x="96"  y="207" width="30" height="95" rx="12" />
-        <rect x="134" y="207" width="30" height="95" rx="12" />
-      </g>
-      {dots.map((d) => (
-        <g key={d.id} style={{ cursor: "pointer" }} onClick={() => onRegionClick(d.id)}>
-          <circle cx={d.cx} cy={d.cy} r="16" fill={d.color} opacity="0.15" />
-          <circle cx={d.cx} cy={d.cy} r="10" fill={d.color} />
-          <circle cx={d.cx} cy={d.cy} r="14" fill="none" stroke={d.color} strokeWidth="1.5" opacity="0.5">
-            <animate attributeName="r"       values="14;18;14"   dur="2s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.5;0;0.5"  dur="2s" repeatCount="indefinite" />
-          </circle>
-        </g>
-      ))}
-    </svg>
-  );
-}
+    <div className="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm animate-in slide-in-from-top-2">
 
-// ─── Vital Card ────────────────────────────────────────────────────────────────
-function VitalCard({ label, value, unit, statusKey, icon }: {
-  label: string; value: number | string; unit: string; statusKey: string; icon: string;
-}) {
-  const numVal = typeof value === "number" ? value : parseFloat(String(value));
-  const s = isNaN(numVal) ? ST.normal : ST[vitalStatus(statusKey, numVal)];
-
-  return (
-    <div className={`bg-white border border-slate-200 border-l-4 ${s.border} rounded-2xl px-4 py-3 flex items-center justify-between hover:shadow-md transition-shadow duration-150`}>
-      <div className="flex items-center gap-3">
-        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0 ${s.iconBg} ${s.iconTx}`}>
-          {icon}
-        </div>
-        <div>
-          <div className="text-[0.6rem] font-semibold tracking-wider uppercase text-slate-400 mb-0.5">{label}</div>
-          <div className="text-xl font-bold text-slate-800 leading-none">
-            {value}<span className="text-xs font-medium text-slate-400"> {unit}</span>
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <i className="fa-solid fa-circle-exclamation text-red-500 text-base"></i>
           </div>
-          <span className={`text-[0.6rem] font-bold px-2 py-0.5 rounded-full inline-block mt-1 ${s.pillBg} ${s.pillTx}`}>
-            ● {s.label}
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col items-end gap-1">
-        <Spark color={s.svg} />
-        <span className="text-[0.6rem] text-slate-400 text-right">
-          Normal: {NORMAL_RANGES[statusKey] ?? ""}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Disabled meta field ───────────────────────────────────────────────────────
-function MetaField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[0.6rem] font-semibold tracking-widest uppercase text-slate-400">{label}</span>
-      <input
-        value={value} disabled readOnly
-        className="px-3 py-1.5 rounded-lg border border-slate-100 bg-slate-50 text-slate-500 text-xs font-medium w-full cursor-default outline-none"
-      />
-    </div>
-  );
-}
-
-// ─── Form field wrapper ────────────────────────────────────────────────────────
-function VField({ label, unit, span2, children }: {
-  label: string; unit?: string; span2?: boolean; children: React.ReactNode;
-}) {
-  return (
-    <div className={`flex flex-col gap-1.5${span2 ? " col-span-2" : ""}`}>
-      <label className="text-[0.68rem] font-semibold tracking-wide text-slate-500">
-        {label}{unit && <span className="text-slate-400 font-normal"> ({unit})</span>}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-// ─── Section divider label ─────────────────────────────────────────────────────
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[0.63rem] font-bold tracking-[0.09em] uppercase text-blue-600 pt-2.5 pb-1 border-b border-blue-50 mb-1">
-      {children}
-    </div>
-  );
-}
-
-// ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function MedicalRecordDetails() {
-  const navigate = useNavigate();
-
-  const [vital, setVital]               = useState<VitalDto>(MOCK_VITAL);
-  const [form,  setForm]                = useState<VitalDto>(MOCK_VITAL);
-  const [saved, setSaved]               = useState(false);
-  const [activeRegion, setActiveRegion] = useState<string | null>(null);
-
-  const handleField = (k: keyof VitalDto, v: string | boolean | number) => {
-    setForm((prev) => ({ ...prev, [k]: v }));
-    setSaved(false);
-  };
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setVital(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-  };
-
-  const bmi = (vital.weight / (vital.height / 100) ** 2).toFixed(1);
-
-  return (
-    <div className="bg-slate-100 min-h-screen">
-
-      {/* ── Top bar ── */}
-      <div className="sticky top-0 z-10 flex items-center justify-between px-8 py-3.5 bg-white border-b border-slate-200">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors bg-transparent border-none cursor-pointer p-0"
-        >
-          ← Back to Records
-        </button>
-        <span className="font-bold text-sm text-slate-800">Medical Records</span>
-        <div />
-      </div>
-
-      {/* ── Main 2-col grid ── */}
-      <div className="grid grid-cols-[320px_1fr] gap-5 px-8 py-6 max-w-[1400px] mx-auto">
-
-        {/* ══ LEFT COL ══ */}
-        <div className="flex flex-col gap-4">
-
-          {/* Patient card */}
-          <div
-            className="rounded-2xl p-6 flex items-center gap-4 shadow-[0_4px_20px_rgba(37,99,235,0.25)]"
-            style={{ background: "linear-gradient(135deg,#1e40af 0%,#2563eb 60%,#3b82f6 100%)" }}
-          >
-            <img
-              src={MOCK_RECORD.patient.avatar}
-              alt={MOCK_RECORD.patient.name}
-              className="w-16 h-16 rounded-2xl object-cover border-[3px] border-white/30 flex-shrink-0"
-            />
-            <div>
-              <div className="text-base font-bold text-white">{MOCK_RECORD.patient.name}</div>
-              <div className="text-xs text-white/70 mt-0.5 mb-2">
-                {MOCK_RECORD.patient.age} yrs · {MOCK_RECORD.patient.gender}
-              </div>
-              <div className="flex gap-1.5 flex-wrap">
-                <span className="text-[0.6rem] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                  {vital.bloodGroup.replace("_", " ")}
-                </span>
-                <span className="text-[0.6rem] font-bold px-2 py-0.5 rounded-full bg-white/15 text-blue-100">
-                  BMI {bmi}
-                </span>
-                {vital.hasFeverHistory && (
-                  <span className="text-[0.6rem] font-bold px-2 py-0.5 rounded-full bg-red-400/30 text-red-200">
-                    Fever Hx
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Record info — disabled form */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5">
-            <div className="text-[0.68rem] font-bold tracking-widest uppercase text-slate-400 mb-3">
-              Record Info
-            </div>
-            <div className="grid grid-cols-2 gap-2.5">
-              <MetaField label="Record ID"   value={`#REC-${MOCK_RECORD.id}`} />
-              <MetaField label="Appointment" value={`#${MOCK_RECORD.appointmentId}`} />
-              <MetaField label="Date"        value={MOCK_RECORD.appointmentDate} />
-              <MetaField label="Doctor"      value={MOCK_RECORD.doctor} />
-              <MetaField label="Nurse"       value={MOCK_RECORD.nurse} />
-              <MetaField label="Vital ID"    value={`#${MOCK_RECORD.vitalId}`} />
-            </div>
-          </div>
-
-          {/* Body map */}
-          <div
-            className="flex-1 rounded-2xl p-5 border border-blue-200"
-            style={{ background: "linear-gradient(135deg,#f0f7ff,#e8f4fd)" }}
-          >
-            <div className="text-[0.68rem] font-bold tracking-widest uppercase text-blue-500 mb-0.5">
-              Body Region
-            </div>
-            <div className="text-[0.68rem] text-slate-400 mb-2">Click a region to update vitals</div>
-            {activeRegion && (
-              <span className="inline-block bg-blue-100 text-blue-700 text-[0.65rem] font-semibold px-2.5 py-0.5 rounded-full mb-2">
-                Selected: <b>{activeRegion}</b>
-              </span>
-            )}
-            <div className="flex justify-center">
-              <BodyMap onRegionClick={(r) => setActiveRegion(r === activeRegion ? null : r)} />
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 mt-3">
-              {[
-                { dot: "bg-red-400",     label: "HR",   val: `${vital.heartRate} bpm` },
-                { dot: "bg-blue-400",    label: "BP",   val: `${vital.systolicBP}/${vital.diastolicBP} mmHg` },
-                { dot: "bg-emerald-400", label: "SpO2", val: `${vital.spo2}%` },
-                { dot: "bg-amber-400",   label: "Temp", val: `${vital.temperature}°C` },
-              ].map((q) => (
-                <div key={q.label} className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${q.dot}`} />
-                  {q.label} <b>{q.val}</b>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ══ RIGHT COL ══ */}
-        <div className="flex flex-col gap-2.5">
-
-          {/* Vitals header */}
-          <div className="flex justify-between items-start flex-wrap gap-3 mb-1">
-            <div>
-              <div className="text-base font-bold text-slate-800">Live Vitals</div>
-              <div className="text-xs text-slate-400 mt-0.5">
-                Recorded {new Date(vital.recordedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
-              </div>
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              <span className="text-[0.6rem] font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-600">
-                {vital.bloodGroup.replace(/_/g, " ")}
-              </span>
-              {vital.hasFeverHistory
-                ? <span className="text-[0.6rem] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-600">Fever</span>
-                : <span className="text-[0.6rem] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-600">No Fever</span>
-              }
-              <span className="text-[0.6rem] font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-600">
-                {vital.respirationRate} br/min
-              </span>
-            </div>
-          </div>
-
-          <VitalCard label="Heart Rate"        value={vital.heartRate}       unit="bpm"   statusKey="heartRate"       icon="♥"  />
-          <VitalCard label="Blood Pressure"    value={`${vital.systolicBP}/${vital.diastolicBP}`} unit="mmHg" statusKey="systolicBP" icon="⚡" />
-          <VitalCard label="Temperature"       value={vital.temperature}     unit="°C"    statusKey="temperature"     icon="🌡" />
-          <VitalCard label="SpO2"              value={vital.spo2}            unit="%"     statusKey="spo2"            icon="💧" />
-          <VitalCard label="Blood Sugar"       value={vital.bloodSugar}      unit="mg/dL" statusKey="bloodSugar"      icon="🩸" />
-          <VitalCard label="Respiration Rate"  value={vital.respirationRate} unit="/min"  statusKey="respirationRate" icon="🫁" />
-
-          {/* Ambulation */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5">
-            <div className="text-[0.63rem] font-bold tracking-widest uppercase text-slate-400 mb-1.5">
-              Ambulation Notes
-            </div>
-            <p className="text-sm text-slate-600 font-medium leading-relaxed">{vital.ambulationHistory}</p>
-            <div className="text-[0.65rem] text-slate-400 mt-1.5">
-              Recorded {new Date(vital.recordedAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Vitals Entry Form ── */}
-      <div className="bg-white border-t border-slate-200 px-8 py-8 max-w-[1400px] mx-auto w-full">
-
-        <div className="flex justify-between items-center flex-wrap gap-4 mb-7">
           <div>
-            <div className="text-lg font-bold text-slate-800">Enter / Update Vitals</div>
-            <div className="text-xs text-slate-400 mt-0.5">Submit new vital readings for this patient</div>
+            <p className="font-bold text-red-700 text-sm">{error.title}</p>
+            <p className="text-red-600 text-sm mt-0.5 leading-relaxed">{error.message}</p>
           </div>
-          {saved && (
-            <div className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl px-4 py-2 text-sm font-semibold">
-              ✓ Vitals saved successfully
-            </div>
+        </div>
+        <button onClick={onDismiss} className="text-red-300 hover:text-red-500 transition-colors flex-shrink-0 mt-0.5">
+          <i className="fa-solid fa-xmark text-base"></i>
+        </button>
+      </div>
+
+      {/* Detail badges row — only shown when details are available */}
+      {(error.field || error.path || error.timestamp || error.status) && (
+        <div className="mt-3 pt-3 border-t border-red-100 flex flex-wrap gap-2">
+
+          {/* Field name — most important, shown first */}
+          {error.field && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-100 border border-red-200 rounded-lg text-[10px] font-bold text-red-600 uppercase tracking-widest">
+              <i className="fa-solid fa-tag text-[9px]"></i> Field: {error.field}
+            </span>
+          )}
+
+          {/* HTTP status code */}
+          {error.status && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-red-100 rounded-lg text-[10px] font-bold text-red-400">
+              <i className="fa-solid fa-signal text-[9px]"></i> {error.status}
+            </span>
+          )}
+
+          {/* API path */}
+          {error.path && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-red-100 rounded-lg text-[10px] font-medium text-slate-400">
+              <i className="fa-solid fa-route text-[9px]"></i> {error.path}
+            </span>
+          )}
+
+          {/* Timestamp */}
+          {error.timestamp && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-red-100 rounded-lg text-[10px] font-medium text-slate-400">
+              <i className="fa-solid fa-clock text-[9px]"></i> {error.timestamp}
+            </span>
           )}
         </div>
+      )}
+    </div>
+  );
+}
 
-        <form onSubmit={handleSave} className="flex flex-col gap-2">
-
-          {/* Cardiovascular */}
-          <SectionLabel>Cardiovascular</SectionLabel>
-          <div className="grid grid-cols-4 gap-3.5 mb-2">
-            <VField label="Systolic BP" unit="mmHg">
-              <input type="number" className={INP} value={form.systolicBP} min={50} max={250}
-                onChange={(e) => handleField("systolicBP", +e.target.value)} />
-            </VField>
-            <VField label="Diastolic BP" unit="mmHg">
-              <input type="number" className={INP} value={form.diastolicBP} min={30} max={150}
-                onChange={(e) => handleField("diastolicBP", +e.target.value)} />
-            </VField>
-            <VField label="Heart Rate" unit="bpm">
-              <input type="number" className={INP} value={form.heartRate} min={30} max={220}
-                onChange={(e) => handleField("heartRate", +e.target.value)} />
-            </VField>
-            <VField label="Respiration Rate" unit="/min">
-              <input type="number" className={INP} value={form.respirationRate} min={5} max={50}
-                onChange={(e) => handleField("respirationRate", +e.target.value)} />
-            </VField>
-          </div>
-
-          {/* Metabolic */}
-          <SectionLabel>Metabolic</SectionLabel>
-          <div className="grid grid-cols-4 gap-3.5 mb-2">
-            <VField label="SpO2" unit="%">
-              <input type="number" className={INP} value={form.spo2} min={50} max={100} step={0.1}
-                onChange={(e) => handleField("spo2", +e.target.value)} />
-            </VField>
-            <VField label="Temperature" unit="°C">
-              <input type="number" className={INP} value={form.temperature} min={34} max={42} step={0.1}
-                onChange={(e) => handleField("temperature", +e.target.value)} />
-            </VField>
-            <VField label="Blood Sugar" unit="mg/dL">
-              <input type="number" className={INP} value={form.bloodSugar} min={20} max={600} step={0.1}
-                onChange={(e) => handleField("bloodSugar", +e.target.value)} />
-            </VField>
-            <VField label="Blood Group">
-              <select className={`${INP} cursor-pointer`} value={form.bloodGroup}
-                onChange={(e) => handleField("bloodGroup", e.target.value)}>
-                {BLOOD_GROUPS.map((bg) => (
-                  <option key={bg} value={bg}>{bg.replace("_", " ")}</option>
-                ))}
-              </select>
-            </VField>
-          </div>
-
-          {/* Anthropometric */}
-          <SectionLabel>Anthropometric</SectionLabel>
-          <div className="grid grid-cols-4 gap-3.5 mb-2">
-            <VField label="Weight" unit="kg">
-              <input type="number" className={INP} value={form.weight} min={1} max={500} step={0.1}
-                onChange={(e) => handleField("weight", +e.target.value)} />
-            </VField>
-            <VField label="Height" unit="cm">
-              <input type="number" className={INP} value={form.height} min={50} max={250} step={0.1}
-                onChange={(e) => handleField("height", +e.target.value)} />
-            </VField>
-            <VField label="Recorded At" span2>
-              <input type="datetime-local" className={INP} value={form.recordedAt.slice(0, 16)}
-                onChange={(e) => handleField("recordedAt", e.target.value + ":00")} />
-            </VField>
-          </div>
-
-          {/* Clinical Notes */}
-          <SectionLabel>Clinical Notes</SectionLabel>
-          <div className="grid grid-cols-4 gap-3.5 mb-2">
-            <VField label="Ambulation History" span2>
-              <textarea
-                className={`${INP} resize-y min-h-[80px] leading-relaxed`}
-                rows={3}
-                value={form.ambulationHistory}
-                onChange={(e) => handleField("ambulationHistory", e.target.value)}
-              />
-            </VField>
-            <VField label="Fever History">
-              <div className="flex items-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleField("hasFeverHistory", !form.hasFeverHistory)}
-                  className={`w-11 h-6 rounded-full p-0.5 flex items-center flex-shrink-0 border-none cursor-pointer transition-all duration-200 ${
-                    form.hasFeverHistory ? "bg-blue-600 justify-end" : "bg-slate-300 justify-start"
-                  }`}
-                >
-                  <span className="w-5 h-5 rounded-full bg-white shadow block" />
-                </button>
-                <span className="text-sm text-slate-500 font-medium">
-                  {form.hasFeverHistory ? "Yes — fever history" : "No fever history"}
-                </span>
-              </div>
-            </VField>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 mt-2 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => { setForm(vital); setSaved(false); }}
-              className="px-6 py-2.5 rounded-xl border border-slate-200 bg-transparent text-slate-500 font-semibold text-sm cursor-pointer hover:bg-slate-50 hover:text-slate-800 transition-all"
-            >
-              Reset
-            </button>
-            <button
-              type="submit"
-              className="px-8 py-2.5 rounded-xl border-none text-white font-bold text-sm cursor-pointer flex items-center gap-2 shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:-translate-y-px hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] transition-all"
-              style={{ background: "linear-gradient(135deg,#1d4ed8,#2563eb)" }}
-            >
-              Save Vitals
-            </button>
-          </div>
-        </form>
+// ============================================================
+// HUMAN BODY SVG — head turns red when hasFever is true
+// ============================================================
+function HumanBodySVG({ hasFever }: { hasFever: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {hasFever && (
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest animate-pulse">
+          <i className="fa-solid fa-fire text-xs"></i> Fever Detected
+        </span>
+      )}
+      <svg viewBox="0 0 100 260" width="110" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm">
+        <circle cx="50" cy="28" r="22" fill={hasFever ? "#ef4444" : "#fcd5b5"} stroke={hasFever ? "#b91c1c" : "#e8b48a"} strokeWidth="1.5" />
+        <circle cx="43" cy="25" r="2.5" fill={hasFever ? "#fff" : "#666"} />
+        <circle cx="57" cy="25" r="2.5" fill={hasFever ? "#fff" : "#666"} />
+        {hasFever
+          ? <path d="M43 35 Q50 31 57 35" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          : <path d="M43 33 Q50 37 57 33" stroke="#c49a6c" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        }
+        {hasFever && <text x="50" y="19" textAnchor="middle" fontSize="9" fill="#fff">🌡</text>}
+        <rect x="44" y="49" width="12" height="10" rx="4" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+        <rect x="30" y="58" width="40" height="55" rx="10" fill="#bfdbfe" stroke="#3b82f6" strokeWidth="1.5" />
+        <polyline points="33,83 39,83 42,74 45,92 48,83 55,83 58,78 61,83 67,83" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+        <rect x="14" y="60" width="14" height="48" rx="7" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1.2" />
+        <ellipse cx="21" cy="113" rx="7" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+        <rect x="72" y="60" width="14" height="48" rx="7" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1.2" />
+        <ellipse cx="79" cy="113" rx="7" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+        <rect x="30" y="112" width="18" height="70" rx="9" fill="#3b82f6" stroke="#2563eb" strokeWidth="1.2" opacity="0.8" />
+        <ellipse cx="39" cy="186" rx="10" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+        <rect x="52" y="112" width="18" height="70" rx="9" fill="#3b82f6" stroke="#2563eb" strokeWidth="1.2" opacity="0.8" />
+        <ellipse cx="61" cy="186" rx="10" ry="5" fill="#fcd5b5" stroke="#e8b48a" strokeWidth="1" />
+        <circle cx="21" cy="103" r="3" fill="#3b82f6">
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="50" cy="83" r="3" fill="#ef4444">
+          <animate attributeName="r" values="2;4;2" dur="0.9s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+      <div className="flex gap-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400 inline-block"></span> Heart</span>
+        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block"></span> SpO2</span>
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// MAIN PAGE
+// ============================================================
+export default function PatientArchivePage() {
+  const { id }   = useParams();
+  const navigate = useNavigate();
+
+  const [records,          setRecords]          = useState<any[]>([]);
+  const [selectedRecord,   setSelectedRecord]   = useState<any>(null);
+  const [vitalsData,       setVitalsData]       = useState<any>(null);
+  const [formData,         setFormData]         = useState({ ...DEFAULT_FORM });
+  const [loading,          setLoading]          = useState(true);
+  const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [isSubmitting,     setIsSubmitting]     = useState(false);
+
+  // Three notification states:
+  // successMsg  → green banner (save worked)
+  // submitError → red banner inside the form (save failed)
+  // fetchError  → red banner at page level (load failed)
+  const [successMsg,  setSuccessMsg]  = useState("");
+  const [submitError, setSubmitError] = useState<ParsedError | null>(null);
+  const [fetchError,  setFetchError]  = useState<ParsedError | null>(null);
+
+  useEffect(() => { if (id) fetchRecords(); }, [id]);
+
+  async function fetchRecords() {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const response = await getMedicalRecords(Number(id));
+      setRecords(response.data?.content || response.data || []);
+    } catch (err) {
+      setFetchError(parseApiError(err));  // show error in UI instead of alert
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleOpenRecord(rec: any) {
+    setSelectedRecord(rec);
+    setVitalsData(null);
+    setSuccessMsg("");
+    setSubmitError(null);
+    setFetchError(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (rec.vitalId) {
+      setWorkspaceLoading(true);
+      try {
+        const res = await getVitalsById(rec.vitalId);
+        setVitalsData(res.data || res);
+      } catch (err) {
+        setFetchError(parseApiError(err));
+      } finally {
+        setWorkspaceLoading(false);
+      }
+    } else {
+      setFormData({ ...DEFAULT_FORM });
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);  // clear previous error before retrying
+    setSuccessMsg("");
+    try {
+      const payload = { ...formData, medicalRecordId: selectedRecord.id, recordedAt: formData.recordedAt + ":00" };
+      const res = await createVitals(payload);
+      if (res.success) {
+        setSuccessMsg("Vitals synchronized successfully!");
+        await fetchRecords();
+        setSelectedRecord(null);
+      }
+    } catch (err) {
+      setSubmitError(parseApiError(err));  // show parsed error inside the form
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (loading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
+      <i className="fa-solid fa-heart-pulse text-blue-600 text-5xl animate-pulse"></i>
+      <p className="text-slate-400 font-semibold tracking-widest text-sm uppercase">Loading Archive...</p>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800">
+
+      {/* HEADER */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-[95%] mx-auto px-6 py-4 flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition-colors text-sm font-medium">
+            <i className="fa-solid fa-arrow-left"></i> Back
+          </button>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+              <i className="fa-solid fa-notes-medical text-blue-600"></i>
+            </div>
+            <h1 className="text-base font-bold text-slate-800">Clinical Workspace — Patient <span className="text-blue-600">#{id}</span></h1>
+          </div>
+          <div className="flex items-center gap-2 text-slate-500 text-sm font-bold uppercase tracking-tight">
+            <i className="fa-solid fa-folder-open text-blue-500"></i> {records.length} Records
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-[95%] mx-auto px-6 py-10 space-y-8">
+
+        {/* Page-level fetch error */}
+        {fetchError && <ErrorBanner error={fetchError} onDismiss={() => setFetchError(null)} />}
+
+        {/* Success banner */}
+        {successMsg && (
+          <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 text-blue-700 px-5 py-3 rounded-2xl text-sm font-medium shadow-sm animate-in slide-in-from-top-4">
+            <i className="fa-solid fa-circle-check text-blue-500 text-base"></i>
+            {successMsg}
+          </div>
+        )}
+
+        {/* Workspace area */}
+        {!selectedRecord ? (
+          <div className="border-2 border-dashed border-slate-200 rounded-3xl p-20 text-center bg-white hover:border-blue-300 transition-colors">
+            <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <i className="fa-solid fa-folder-magnifying-glass text-slate-300 text-3xl"></i>
+            </div>
+            <p className="text-slate-400 text-sm font-medium">Select a record from the timeline below to open the workspace</p>
+          </div>
+        ) : workspaceLoading ? (
+          <div className="bg-white rounded-3xl p-20 text-center border border-slate-100">
+            <i className="fa-solid fa-spinner text-blue-500 text-3xl animate-spin"></i>
+            <p className="text-slate-400 mt-4 text-sm">Loading vitals...</p>
+          </div>
+        ) : vitalsData ? (
+          <ReadModeWorkspace record={selectedRecord} vitals={vitalsData} onClose={() => setSelectedRecord(null)} />
+        ) : (
+          <CreateModeWorkspace
+            record={selectedRecord}
+            formData={formData}
+            setFormData={setFormData}
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+            onClose={() => { setSelectedRecord(null); setSubmitError(null); }}
+            submitError={submitError}
+            onDismissError={() => setSubmitError(null)}
+          />
+        )}
+
+        <RecordsTable records={records} selectedId={selectedRecord?.id} onOpen={handleOpenRecord} />
+      </main>
+    </div>
+  );
+}
+
+// ============================================================
+// READ MODE
+// ============================================================
+function ReadModeWorkspace({ record, vitals, onClose }: any) {
+  return (
+    <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-lg animate-in zoom-in-95">
+      <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-blue-50">
+        <div className="flex items-center gap-4 text-blue-700">
+          <i className="fa-solid fa-shield-heart text-lg"></i>
+          <span className="font-bold">Authorized Record View — #REC-{record.id}</span>
+        </div>
+        <button onClick={onClose} className="text-slate-400 hover:text-slate-700 w-9 h-9 flex items-center justify-center rounded-xl hover:bg-white transition-colors">
+          <i className="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-4 bg-slate-50 border-r border-slate-100 flex flex-col items-center justify-center p-10 gap-5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-start">
+            <i className="fa-solid fa-person mr-2 text-blue-400"></i>Biometric Mapping
+          </p>
+          <HumanBodySVG hasFever={vitals.hasFeverHistory} />
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center shadow-sm">
+              <p className="text-[9px] text-slate-400 font-bold uppercase">Heart</p>
+              <p className="text-rose-500 font-bold text-base">{vitals.heartRate} <span className="text-[9px] text-slate-400">bpm</span></p>
+            </div>
+            <div className="bg-white rounded-2xl p-3 border border-slate-100 text-center shadow-sm">
+              <p className="text-[9px] text-slate-400 font-bold uppercase">Temp</p>
+              <p className={`font-bold text-base ${vitals.hasFeverHistory ? "text-red-500" : "text-blue-600"}`}>{vitals.temperature}°C</p>
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-8 p-8 space-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <VitalCard icon="fa-solid fa-bolt"           iconColor="text-blue-600"  bg="bg-blue-50 border-blue-100"    label="Blood Pressure" value={`${vitals.systolicBP}/${vitals.diastolicBP}`} unit="mmHg" />
+            <VitalCard icon="fa-solid fa-droplet"        iconColor="text-blue-500"  bg="bg-blue-50/50 border-blue-50"  label="SpO2"           value={vitals.spo2}            unit="%" />
+            <VitalCard icon="fa-solid fa-syringe"        iconColor="text-blue-400"  bg="bg-slate-50 border-slate-100"  label="Blood Sugar"    value={vitals.bloodSugar}      unit="mg/dL" />
+            <VitalCard icon="fa-solid fa-lungs"          iconColor="text-blue-600"  bg="bg-blue-50 border-blue-100"    label="Respiration"    value={vitals.respirationRate} unit="br/min" />
+            <VitalCard icon="fa-solid fa-weight-scale"   iconColor="text-slate-600" bg="bg-slate-100 border-slate-200" label="Weight"         value={vitals.weight}          unit="kg" />
+            <VitalCard icon="fa-solid fa-ruler-vertical" iconColor="text-slate-500" bg="bg-slate-50 border-slate-200"  label="Height"         value={vitals.height}          unit="cm" />
+          </div>
+          {vitals.ambulationHistory && (
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+              <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">
+                <i className="fa-solid fa-clipboard-list mr-2 text-blue-400"></i>Observations
+              </p>
+              <p className="text-slate-600 text-sm leading-relaxed">{vitals.ambulationHistory}</p>
+            </div>
+          )}
+          <div className="flex gap-3 flex-wrap">
+            <span className="px-4 py-1.5 rounded-xl border bg-blue-50 border-blue-100 text-blue-600 text-xs font-bold uppercase">
+              <i className="fa-solid fa-droplet mr-2"></i>Blood: {vitals.bloodGroup?.replace("_", " ")}
+            </span>
+            {vitals.hasFeverHistory && (
+              <span className="px-4 py-1.5 rounded-xl border bg-red-50 border-red-200 text-red-600 text-xs font-bold uppercase animate-pulse">
+                <i className="fa-solid fa-fire mr-2"></i>Fever Alert
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// CREATE MODE — with inline error display
+// submitError is passed in so the ErrorBanner renders inside the card
+// hasError on FormInput turns the input border red
+// ============================================================
+function CreateModeWorkspace({ record, formData, setFormData, isSubmitting, onSubmit, onClose, submitError, onDismissError }: any) {
+  const set = (field: string, val: any) => setFormData({ ...formData, [field]: val });
+
+  return (
+    <div className="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl animate-in slide-in-from-top-4">
+      <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-blue-600 text-white">
+        <div className="flex items-center gap-4">
+          <i className="fa-solid fa-stethoscope text-lg"></i>
+          <span className="font-bold">Input Clinical Vitals — #REC-{record.id}</span>
+        </div>
+        <button onClick={onClose} className="p-2 hover:bg-black/10 rounded-full transition-colors">
+          <i className="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        {/* Body preview */}
+        <div className="lg:col-span-4 bg-slate-50 border-r border-slate-100 flex flex-col items-center justify-center p-10 gap-5">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-start">
+            <i className="fa-solid fa-person mr-2 text-blue-400"></i>Biometric Preview
+          </p>
+          <HumanBodySVG hasFever={formData.hasFeverHistory} />
+        </div>
+
+        {/* Form */}
+        <div className="lg:col-span-8 p-8">
+
+          {/* Error banner inside the form — shown after failed submit */}
+          {submitError && (
+            <div className="mb-6">
+              <ErrorBanner error={submitError} onDismiss={onDismissError} />
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              {/* hasError prop highlights the input red if the field matches the error */}
+              <FormInput label="Systolic BP"      icon="fa-solid fa-bolt"             type="number"        value={formData.systolicBP}      onChange={(v: string) => set("systolicBP", +v)}      hasError={submitError?.field === "systolicBP"} />
+              <FormInput label="Diastolic BP"     icon="fa-solid fa-bolt"             type="number"        value={formData.diastolicBP}     onChange={(v: string) => set("diastolicBP", +v)}     hasError={submitError?.field === "diastolicBP"} />
+              <FormInput label="Heart Rate"       icon="fa-solid fa-heart-pulse"      type="number"        value={formData.heartRate}       onChange={(v: string) => set("heartRate", +v)}       hasError={submitError?.field === "heartRate"} />
+              <FormInput label="SpO2 (%)"         icon="fa-solid fa-droplet"          type="number"        value={formData.spo2}            onChange={(v: string) => set("spo2", +v)}            hasError={submitError?.field === "spo2"} />
+              <FormInput label="Temperature (°C)" icon="fa-solid fa-temperature-half" type="number" step="0.1" value={formData.temperature} onChange={(v: string) => set("temperature", +v)}    hasError={submitError?.field === "temperature"} />
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">
+                  <i className="fa-solid fa-droplet mr-2 text-blue-500"></i>Blood Group
+                </label>
+                <select value={formData.bloodGroup} onChange={(e) => set("bloodGroup", e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-700 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-blue-400 outline-none">
+                  {BLOOD_GROUPS.map(bg => <option key={bg.value} value={bg.value}>{bg.label}</option>)}
+                </select>
+              </div>
+              <FormInput label="Weight (kg)"      icon="fa-solid fa-weight-scale"     type="number" step="0.1" value={formData.weight}      onChange={(v: string) => set("weight", +v)}          hasError={submitError?.field === "weight"} />
+              <FormInput label="Height (cm)"      icon="fa-solid fa-ruler-vertical"   type="number"        value={formData.height}          onChange={(v: string) => set("height", +v)}          hasError={submitError?.field === "height"} />
+            </div>
+
+            {/* Notes textarea — turns red if "ambulationHistory" is the error field */}
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                <i className="fa-solid fa-clipboard-list mr-1 text-blue-500"></i> Clinical Notes
+                {submitError?.field === "ambulationHistory" && (
+                  <span className="ml-1 text-red-500 normal-case font-semibold text-[10px]">
+                    <i className="fa-solid fa-triangle-exclamation mr-1"></i>Required
+                  </span>
+                )}
+              </label>
+              <textarea rows={3} placeholder="Enter observations, notes, or remarks..."
+                value={formData.ambulationHistory} onChange={(e) => set("ambulationHistory", e.target.value)}
+                className={`w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 placeholder-slate-300 resize-none transition-all ${
+                  submitError?.field === "ambulationHistory"
+                    ? "bg-red-50 border border-red-300 text-slate-700 focus:ring-red-300"
+                    : "bg-slate-50 border border-slate-200 text-slate-700 focus:ring-blue-400"
+                }`}
+              />
+            </div>
+
+            {/* Fever toggle + Submit */}
+            <div className="flex items-center gap-4">
+              <button type="button" onClick={() => set("hasFeverHistory", !formData.hasFeverHistory)}
+                className={`flex-1 py-3 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-2 ${
+                  formData.hasFeverHistory
+                    ? "bg-red-500 border-red-500 text-white shadow-lg shadow-red-100"
+                    : "bg-slate-50 border-slate-200 text-slate-400 hover:border-blue-400"
+                }`}>
+                <i className={`fa-solid ${formData.hasFeverHistory ? "fa-fire" : "fa-circle"}`}></i>
+                {formData.hasFeverHistory ? "Fever History: Active" : "No Fever History"}
+              </button>
+              <button type="submit" disabled={isSubmitting}
+                className="flex-[2] bg-blue-600 hover:bg-slate-900 disabled:bg-slate-200 disabled:text-slate-400 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest shadow-xl transition-all flex items-center justify-center gap-2">
+                {isSubmitting
+                  ? <><i className="fa-solid fa-spinner animate-spin"></i> Processing...</>
+                  : <><i className="fa-solid fa-floppy-disk"></i> Synchronize Vitals</>
+                }
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// RECORDS TABLE
+// ============================================================
+function RecordsTable({ records, selectedId, onOpen }: any) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-slate-800 flex items-center gap-4">
+        <i className="fa-solid fa-timeline text-blue-600"></i> Clinical Timeline
+        <div className="flex-1 h-px bg-slate-200"></div>
+      </h2>
+      <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-400 bg-slate-50">
+              <th className="text-left px-10 py-6">Medical Reference</th>
+              <th className="text-center px-10 py-6">Clinical Team</th>
+              <th className="text-center px-10 py-6">Status</th>
+              <th className="text-right px-10 py-6">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {records.map((rec: any) => (
+              <tr key={rec.id} className={`transition-colors ${selectedId === rec.id ? "bg-blue-50/50" : "hover:bg-slate-50"}`}>
+                <td className="px-10 py-6">
+                  <div className="flex items-center gap-6">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${selectedId === rec.id ? "bg-blue-600 text-white shadow-lg shadow-blue-200" : "bg-slate-100 text-slate-400"}`}>
+                      <i className="fa-solid fa-file-waveform text-xl"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs text-slate-400 font-medium uppercase mb-1">Created: {rec.createdDate || "Mar 2026"}</p>
+                      <p className="text-lg font-black text-slate-800 leading-none">#REC-{rec.id}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-10 py-6 text-center space-x-2">
+                  <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-bold border border-blue-100 uppercase tracking-widest">
+                    <i className="fa-solid fa-user-doctor mr-1"></i>Dr {rec.doctorId}
+                  </span>
+                  <span className="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-bold border border-slate-200 uppercase tracking-widest">
+                    <i className="fa-solid fa-user-nurse mr-1"></i>Ns {rec.nurseId}
+                  </span>
+                </td>
+                <td className="px-10 py-6 text-center">
+                  {rec.vitalId
+                    ? <span className="text-blue-600 font-bold text-[10px] uppercase tracking-widest flex items-center justify-center gap-1"><i className="fa-solid fa-circle-check"></i> Logged</span>
+                    : <span className="text-slate-300 font-bold text-[10px] uppercase italic">Pending</span>
+                  }
+                </td>
+                <td className="px-10 py-6 text-right">
+                  <button onClick={() => onOpen(rec)}
+                    className={`px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all ${selectedId === rec.id ? "bg-blue-600 text-white shadow-xl shadow-blue-100" : "bg-slate-100 text-slate-500 hover:bg-blue-600 hover:text-white"}`}>
+                    {selectedId === rec.id
+                      ? <><i className="fa-solid fa-eye mr-2"></i>Active</>
+                      : <><i className="fa-solid fa-folder-open mr-2"></i>Open</>
+                    }
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// VITAL CARD
+// ============================================================
+function VitalCard({ icon, iconColor, bg, label, value, unit }: any) {
+  return (
+    <div className={`border rounded-[1.5rem] p-5 space-y-3 transition-all hover:shadow-md ${bg}`}>
+      <i className={`${icon} ${iconColor} text-lg`}></i>
+      <div>
+        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+        <p className="text-slate-800 font-black text-lg leading-none">{value}<span className="text-slate-400 text-xs font-medium ml-1">{unit}</span></p>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// FORM INPUT
+// hasError = true → red border + warning icon on label
+// ============================================================
+function FormInput({ label, icon, type, step, value, onChange, hasError }: any) {
+  return (
+    <div className="space-y-2">
+      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+        <i className={`${icon} text-blue-500`}></i> {label}
+        {hasError && <i className="fa-solid fa-triangle-exclamation text-red-400 text-[9px] ml-1"></i>}
+      </label>
+      <input required type={type} step={step} value={value} onChange={(e) => onChange(e.target.value)}
+        className={`w-full rounded-xl px-4 py-3 text-sm font-bold focus:ring-2 outline-none transition-all ${
+          hasError
+            ? "bg-red-50 border border-red-300 text-slate-800 focus:ring-red-300"
+            : "bg-slate-50 border border-slate-200 text-slate-800 focus:ring-blue-400"
+        }`}
+      />
     </div>
   );
 }

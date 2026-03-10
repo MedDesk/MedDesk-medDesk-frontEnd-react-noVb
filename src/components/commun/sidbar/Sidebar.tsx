@@ -16,6 +16,10 @@ const navItems = [
   { name: 'Lab Results', icon: 'fa-solid fa-flask-vial', path: '/dashboard/lab', roles: ALL_ROLES },
   { name: 'Prescriptions', icon: 'fa-solid fa-capsules', path: '/dashboard/prescriptions', roles: ALL_ROLES },
   { name: 'Departments', icon: 'fa-solid fa-hospital', path: '/dashboard/departments', roles: ALL_ROLES },
+
+
+  // patient-specific
+  { name: 'My Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/myAppointments', roles: ALL_ROLES }
 ];
 
 export default function Sidebar() {

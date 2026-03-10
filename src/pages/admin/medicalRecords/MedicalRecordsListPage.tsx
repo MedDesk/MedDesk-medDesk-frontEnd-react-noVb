@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { redirect, useNavigate } from 'react-router-dom'; // Added for navigation
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  getMedicalRecords,
+  createMedicalRecord, 
+  deleteMedicalRecord, 
+  getMedicalRecordsByPatientId 
+} from "../../../services/adminServices/MedicalRecord.service"; 
+import { getDoctors } from "../../../services/adminServices/Doctor.service";
+import { getAppointments } from "../../../services/adminServices/Appointment.service";
+import { getAllNurses } from "../../../services/patientServices/Staff.service"; 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface MedicalRecordDto {
@@ -7,8 +16,8 @@ interface MedicalRecordDto {
   nurseId: number;
   doctorId: number;
   appointmentId: number;
-  patientId: number; // Added to facilitate filtering
-  vitalId: number;
+  patientId: number;
+  vitalId: number | null;
   createdDate: string;
 }
 
@@ -16,93 +25,149 @@ interface CreateMedicalRecordRequest {
   nurseId: number | "";
   doctorId: number | "";
   appointmentId: number | "";
-  vitalId: number | "";
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-const MOCK_NURSES = [
-  { id: 101, name: "Nurse Amina Mansouri" },
-  { id: 102, name: "Nurse Yassine Benali" },
-  { id: 103, name: "Nurse Sarah Elbaz" },
-];
-
-const MOCK_DOCTORS = [
-  { id: 1, name: "Dr. Mustapha Elalami", specialty: "Cardiology" },
-  { id: 2, name: "Dr. Sarah Mansouri", specialty: "Neurology" },
-];
-
-const MOCK_APPOINTMENTS = [
-  { id: 1, patientId: 3, date: "2025-10-16", time: "09:00" },
-  { id: 5, patientId: 3, date: "2025-11-02", time: "11:30" },
-  { id: 2, patientId: 7, date: "2025-10-17", time: "10:00" },
-  { id: 8, patientId: 2, date: "2025-10-21", time: "15:00" },
-];
-
-const INITIAL_RECORDS: MedicalRecordDto[] = [
-  { id: 1, nurseId: 101, doctorId: 1, appointmentId: 1, patientId: 3, vitalId: 501, createdDate: "2025-03-06" },
-];
-
 export default function MedicalRecordsListPage() {
-  const navigate = useNavigate(); // Initialize navigate
-  const [records, setRecords] = useState<MedicalRecordDto[]>(INITIAL_RECORDS);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchPatientId, setSearchPatientId] = useState(""); // State for filtering
+  const navigate = useNavigate();
   
-  // Form State
+  const [records, setRecords] = useState<MedicalRecordDto[]>([]);
+  const [patients, setPatients] = useState<any[]>([]); 
+  const [nurses, setNurses] = useState<any[]>([]); 
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchPatientId, setSearchPatientId] = useState("");
+  const [loading, setLoading] = useState(true);
+  
   const [selectedPatientId, setSelectedPatientId] = useState<number | "">("");
   const [formData, setFormData] = useState<CreateMedicalRecordRequest>({
     nurseId: "",
     doctorId: "",
     appointmentId: "",
-    vitalId: Math.floor(Math.random() * 1000), 
   });
 
-  // Filter Logic: Filter records by Patient ID string
-  const filteredRecords = records.filter(rec => 
-    String(rec.patientId).includes(searchPatientId)
-  );
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
-  // Filter appointments based on selected patient in Modal
-  const filteredAppointments = MOCK_APPOINTMENTS.filter(
+  const fetchInitialData = async () => {
+    setLoading(true);
+    try {
+      const [recordsRes, doctorsRes, apptsRes, nursesRes] = await Promise.all([
+        getMedicalRecords(),
+        getDoctors(0, 100),             
+        getAppointments(0, 100),
+        getAllNurses() 
+      ]);
+
+      // FIX: Accessing data.content based on your provided response structure
+      const recordsList = recordsRes.data?.content || [];
+      const doctorsList = doctorsRes.data?.content || [];
+      const apptsList = apptsRes.data?.content || [];
+      
+      // Nurses usually return data directly in a custom staff service, 
+      // but check if it's also wrapped in .data
+      const nursesList = nursesRes.data || nursesRes || [];
+
+      setRecords(recordsList);
+      setDoctors(doctorsList);
+      setNurses(nursesList);
+      setAppointments(apptsList);
+      
+      // Extract unique patients from the appointments list
+      const uniquePatients = Array.from(new Set(apptsList.map((a: any) => a.patientId)))
+        .map(id => {
+          const appt = apptsList.find((a: any) => a.patientId === id);
+          return { 
+            id: appt.patientId, 
+            firstName: appt.patientFirstName || "Patient", 
+            lastName: appt.patientLastName || `#${appt.patientId}` 
+          };
+        });
+      setPatients(uniquePatients);
+      
+    } catch (err) {
+      console.error("Failed to fetch clinical data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!searchPatientId) {
+        fetchInitialData();
+        return;
+    }
+    setLoading(true);
+    try {
+      const res = await getMedicalRecordsByPatientId(Number(searchPatientId));
+      // API search might return a direct list or a paginated object. 
+      // Handling both to be safe:
+      const results = res.data?.content || res.data || [];
+      setRecords(results);
+    } catch (err) {
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateRecord = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await createMedicalRecord(formData);
+      if (response.success) {
+        setIsModalOpen(false);
+        setFormData({ nurseId: "", doctorId: "", appointmentId: "" });
+        setSelectedPatientId("");
+        fetchInitialData();
+      }
+    } catch (err) {
+      console.error("Error creating record:", err);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Delete this medical record permanently?")) {
+      try {
+        const res = await deleteMedicalRecord(id);
+        if (res.success) {
+            setRecords(prev => prev.filter(r => r.id !== id));
+        }
+      } catch (err) {
+        console.error("Delete failed", err);
+      }
+    }
+  };
+
+  const getStaffName = (list: any[], id: number) => {
+    const person = list.find(p => p.id === id);
+    return person ? `${person.firstName} ${person.lastName}` : `ID: ${id}`;
+  };
+
+  const filteredAppointments = appointments.filter(
     app => app.patientId === Number(selectedPatientId)
   );
-
-  const handleCreateRecord = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newRecord: MedicalRecordDto = {
-      id: records.length + 1,
-      nurseId: Number(formData.nurseId),
-      doctorId: Number(formData.doctorId),
-      appointmentId: Number(formData.appointmentId),
-      patientId: Number(selectedPatientId), // Capture patient ID
-      vitalId: Number(formData.vitalId),
-      createdDate: new Date().toISOString().split('T')[0]
-    };
-    setRecords([newRecord, ...records]);
-    setIsModalOpen(false);
-    setFormData({ nurseId: "", doctorId: "", appointmentId: "", vitalId: "" });
-    setSelectedPatientId("");
-  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-8 font-sans text-slate-900">
       
-      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Medical Records</h1>
-          <p className="text-slate-500 text-sm font-medium italic">Patient history and clinical documentation</p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 font-heading">Medical Records</h1>
+          <p className="text-slate-500 text-sm font-medium italic">Clinical history management</p>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          {/* Filter by Patient ID Input */}
           <div className="relative flex-1 sm:w-64">
             <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
             <input 
-              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm shadow-sm"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl border border-slate-200 bg-white outline-none focus:ring-4 focus:ring-blue-50 transition-all text-sm shadow-sm"
               placeholder="Search by Patient ID..."
               value={searchPatientId}
               onChange={(e) => setSearchPatientId(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
 
@@ -110,177 +175,151 @@ export default function MedicalRecordsListPage() {
             onClick={() => setIsModalOpen(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 transition-all flex items-center gap-2 active:scale-95 whitespace-nowrap"
           >
-            <i className="fa-solid fa-file-medical"></i> Create New Record
+            <i className="fa-solid fa-file-medical"></i> Create Record
           </button>
         </div>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <RecordStat label="Total Records" val={records.length} icon="fa-folder-open" color="text-blue-600" />
-        <RecordStat label="Filtered Result" val={filteredRecords.length} icon="fa-filter" color="text-emerald-600" />
-        <RecordStat label="Nurses on Duty" val={MOCK_NURSES.length} icon="fa-user-nurse" color="text-amber-600" />
-      </div>
-
-      {/* Records Table */}
-      <div className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-sm">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-slate-50/50 border-b border-slate-100">
-              <th className="p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">ID & Patient</th>
-              <th className="p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Staff Involved</th>
-              <th className="p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Vitals</th>
-              <th className="p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {filteredRecords.map(rec => (
-              <tr key={rec.id} className="hover:bg-blue-50/30 transition-colors group">
-                <td className="p-5">
-                  <div className="flex flex-col">
-                    <span className="font-mono text-[10px] font-bold text-slate-400 tracking-tighter uppercase">Ref: #REC-{rec.id}</span>
-                    <span className="text-sm font-black text-blue-600 mt-1">Patient #{rec.patientId}</span>
-                  </div>
-                </td>
-                <td className="p-5">
-                  <div className="flex flex-col gap-1">
-                    <span className="text-sm font-bold text-slate-700">
-                      <i className="fa-solid fa-user-doctor text-blue-500 mr-2"></i>
-                      {MOCK_DOCTORS.find(d => d.id === rec.doctorId)?.name}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium">
-                      <i className="fa-solid fa-user-nurse text-amber-500 mr-2"></i>
-                      {MOCK_NURSES.find(n => n.id === rec.nurseId)?.name}
-                    </span>
-                  </div>
-                </td>
-                <td className="p-5 text-center">
-                  {/* Add Vitals Button */}
-                 <button 
-  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl text-[10px] font-black uppercase hover:bg-amber-600 hover:text-white transition-all" 
-  onClick={() => navigate(`/dashboard/medical-records/${rec.id}`)}
->
-  <i className="fa-solid fa-heart-pulse"></i>
-  Add Vitals
-</button>
-                </td>
-                <td className="p-5 text-right">
-                  <div className="flex justify-end gap-2">
-                    {/* See Details Button */}
-                    <button 
-                      onClick={() => navigate(`/dashboard/medical-records/${rec.id}`)}
-                      className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center"
-                      title="See Details"
-                    >
-                      <i className="fa-solid fa-eye text-sm"></i>
-                    </button>
-                    <button className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center">
-                      <i className="fa-solid fa-file-pdf text-sm"></i>
-                    </button>
-                    <button className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center">
-                      <i className="fa-solid fa-trash-can text-sm"></i>
-                    </button>
-                  </div>
-                </td>
+      {/* Table Section */}
+      <div className="bg-white border border-slate-100 rounded-[2.5rem] overflow-hidden shadow-sm">
+        {loading ? (
+            <div className="p-24 text-center">
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-blue-600 border-t-transparent"></div>
+                <p className="mt-4 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Loading clinical data...</p>
+            </div>
+        ) : (
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-slate-50/50 border-b border-slate-100">
+                <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Reference</th>
+                <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Medical Team</th>
+                <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest text-center">Vitals</th>
+                <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {filteredRecords.length === 0 && (
-          <div className="p-20 text-center text-slate-400">
-            <i className="fa-solid fa-magnifying-glass text-4xl mb-4 opacity-20"></i>
-            <p className="font-medium">No records found for Patient ID: {searchPatientId}</p>
-          </div>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {records.length > 0 ? records.map(rec => (
+                <tr key={rec.id} className="hover:bg-blue-50/20 transition-colors group">
+                  <td className="p-6">
+                    <div className="flex flex-col">
+                      <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-tighter">#REC-{rec.id}</span>
+                      <span className="text-[15px] font-black text-slate-900 mt-1">Patient ID: {rec.patientId}</span>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                        <i className="fa-solid fa-user-doctor text-blue-500 text-[10px]"></i>
+                        {getStaffName(doctors, rec.doctorId)}
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-bold uppercase flex items-center gap-2 tracking-tighter">
+                        <i className="fa-solid fa-user-nurse text-amber-500"></i>
+                        {getStaffName(nurses, rec.nurseId)}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-6 text-center">
+                    <button 
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-500 border border-slate-100 rounded-xl text-[10px] font-black uppercase hover:bg-amber-600 hover:text-white transition-all" 
+                      onClick={() => navigate(`/dashboard/medical-records/${rec.id}/vitals`)}
+                    >
+                      <i className="fa-solid fa-heart-pulse"></i>
+                      {rec.vitalId ? 'Update' : 'Add'}
+                    </button>
+                  </td>
+                  <td className="p-6 text-right">
+                    <div className="flex justify-end gap-3">
+                      <button 
+                        onClick={() => navigate(`/dashboard/medical-records/${rec.id}`)}
+                        className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center shadow-sm"
+                      >
+                        <i className="fa-solid fa-eye text-sm"></i>
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(rec.id)}
+                        className="w-10 h-10 rounded-xl bg-white border border-slate-100 text-slate-300 hover:text-rose-600 hover:border-rose-100 transition-all flex items-center justify-center"
+                      >
+                        <i className="fa-solid fa-trash-can text-sm"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td colSpan={4} className="p-20 text-center text-slate-400 font-medium">No records found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         )}
       </div>
 
-      {/* Create Modal (Same as before) */}
+      {/* Create Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900">New Medical Record</h2>
-                <p className="text-slate-400 text-xs font-medium">Link clinical data to a patient appointment</p>
-              </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-rose-500 transition-colors">
-                <i className="fa-solid fa-circle-xmark text-3xl"></i>
-              </button>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white w-full max-w-lg rounded-[3rem] p-10 shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center mb-10">
+              <h2 className="text-3xl font-black text-slate-900">Create Entry</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-slate-300 hover:text-slate-900 transition-colors"><i className="fa-solid fa-circle-xmark text-3xl"></i></button>
             </div>
 
-            <form onSubmit={handleCreateRecord} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Step 1: Patient ID</label>
-                <input 
-                  type="number" 
-                  placeholder="Enter Patient ID (e.g., 3)" 
-                  value={selectedPatientId}
-                    onChange={(e) => setSelectedPatientId(e.target.value === "" ? "" : Number(e.target.value))}
-                  className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold text-sm" 
-                  required
-                />
-              </div>
-              
-
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Step 2: Choose Appointment</label>
+            <form onSubmit={handleCreateRecord} className="space-y-6">
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Patient Name</label>
                 <select 
-  className="..."
-  value={formData.appointmentId}
-  // FIX: Convert value to Number
-  onChange={(e) => setFormData({...formData, appointmentId: e.target.value === "" ? "" : Number(e.target.value)})}
-  disabled={!selectedPatientId}
-  required
->
-                  <option value="">Select Appointment...</option>
+                   className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white outline-none transition-all font-bold text-sm shadow-inner cursor-pointer"
+                   value={selectedPatientId} 
+                   onChange={(e) => {
+                     setSelectedPatientId(e.target.value === "" ? "" : Number(e.target.value));
+                     setFormData({...formData, appointmentId: ""});
+                   }} 
+                   required
+                >
+                  <option value="">Select from active patients...</option>
+                  {patients.map(p => (
+                    <option key={p.id} value={p.id}>{p.firstName} {p.lastName} (ID: {p.id})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Appointment Slot</label>
+                <select 
+                  className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white outline-none transition-all font-bold text-sm shadow-inner disabled:opacity-50 cursor-pointer" 
+                  value={formData.appointmentId} 
+                  onChange={(e) => setFormData({...formData, appointmentId: Number(e.target.value)})} 
+                  disabled={!selectedPatientId} 
+                  required
+                >
+                  <option value="">Choose appointment...</option>
                   {filteredAppointments.map(app => (
                     <option key={app.id} value={app.id}>
-                      Appt #{app.id} — Date: {app.date} ({app.time})
+                      {app.appointmentDate} - {app.scheduleTimeStart.slice(0,5)}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Doctor</label>
-                 <select 
-  className="..."
-  value={formData.doctorId}
-  // FIX: Convert value to Number
-  onChange={(e) => setFormData({...formData, doctorId: e.target.value === "" ? "" : Number(e.target.value)})}
-  required
->
-                    <option value="">Choose Doctor</option>
-                    {MOCK_DOCTORS.map(doc => <option key={doc.id} value={doc.id}>{doc.name}</option>)}
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Physician</label>
+                  <select className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white outline-none transition-all font-bold text-sm shadow-inner cursor-pointer" value={formData.doctorId} onChange={(e) => setFormData({...formData, doctorId: Number(e.target.value)})} required>
+                    <option value="">Select Doctor</option>
+                    {doctors.map(doc => <option key={doc.id} value={doc.id}>{doc.firstName} {doc.lastName}</option>)}
                   </select>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nurse</label>
-                 <select 
-  className="..."
-  value={formData.nurseId}
-  // FIX: Convert value to Number
-  onChange={(e) => setFormData({...formData, nurseId: e.target.value === "" ? "" : Number(e.target.value)})}
-  required
->
-                    <option value="">Choose Nurse</option>
-                    {MOCK_NURSES.map(nurse => <option key={nurse.id} value={nurse.id}>{nurse.name}</option>)}
+                <div>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assigned Nurse</label>
+                  <select className="w-full px-6 py-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white outline-none transition-all font-bold text-sm shadow-inner cursor-pointer" value={formData.nurseId} onChange={(e) => setFormData({...formData, nurseId: Number(e.target.value)})} required>
+                    <option value="">Select Nurse</option>
+                    {nurses.map(n => <option key={n.id} value={n.id}>{n.firstName} {n.lastName}</option>)}
                   </select>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Vital ID Reference</label>
-                <div className="px-5 py-3.5 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 font-mono font-bold text-sm flex justify-between">
-                  <span>#VIT-{formData.vitalId}</span>
-                  <i className="fa-solid fa-heart-pulse"></i>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 pt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="py-4 rounded-2xl font-bold text-slate-400 bg-slate-100 hover:bg-slate-200 transition-all text-sm">Cancel</button>
-                <button type="submit" className="py-4 rounded-2xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all text-sm">Create Record</button>
+              <div className="flex gap-4 pt-6">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-5 rounded-2xl font-bold text-slate-400 bg-slate-50 hover:bg-slate-100 transition-all text-sm uppercase">Cancel</button>
+                <button type="submit" className="flex-1 py-5 rounded-2xl font-black text-white bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-100 transition-all text-sm uppercase">Save Record</button>
               </div>
             </form>
           </div>
@@ -290,17 +329,15 @@ export default function MedicalRecordsListPage() {
   );
 }
 
-// ─── Sub-Components ──────────────────────────────────────────────────────────
-
 function RecordStat({ label, val, icon, color }: any) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-5">
-      <div className={`w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-xl ${color}`}>
+    <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-6 hover:shadow-md transition-shadow">
+      <div className={`w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl ${color}`}>
         <i className={`fa-solid ${icon}`}></i>
       </div>
       <div>
-        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest block">{label}</span>
-        <span className="text-xl font-black text-slate-800">{val}</span>
+        <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.1em] block mb-1">{label}</span>
+        <span className="text-2xl font-black text-slate-900 leading-none">{val}</span>
       </div>
     </div>
   );

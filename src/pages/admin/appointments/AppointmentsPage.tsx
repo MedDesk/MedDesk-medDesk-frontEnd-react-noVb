@@ -190,7 +190,7 @@ export default function AppointmentsPage() {
                       </td>
                       <td className="p-5">
                         {/* Navigate to Patient Details */}
-                        <Link to={`/patients/${apt.patientId}`} className="block hover:translate-x-1 transition-transform group/link">
+                        <Link to={`/dashboard/patients/${apt.patientId}`} className="block hover:translate-x-1 transition-transform group/link">
                           <div className="font-bold text-slate-700 group-hover/link:text-blue-600 transition-colors">Patient #{apt.patientId}</div>
                           <div className="text-[10px] font-bold text-blue-500/60 uppercase">Record: {apt.medicalRecordId || 'N/A'}</div>
                         </Link>

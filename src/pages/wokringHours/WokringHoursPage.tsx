@@ -105,12 +105,12 @@ export default function WorkingHoursPage() {
           </div>
           <p className="text-slate-500 text-sm">Configure your hospital's operational schedule for each day.</p>
         </div>
-        <button 
+        {/* <button 
           onClick={() => { setSelectedDay(null); setIsModalOpen(true); }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-blue-200 transition-all flex items-center gap-2"
         >
           <i className="fa-solid fa-plus text-xs"></i> Add Schedule
-        </button>
+        </button> */}
       </div>
 
       {/* Week Timeline Strip */}

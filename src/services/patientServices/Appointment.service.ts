@@ -43,16 +43,18 @@ export const getAppointmentById = async (id: number) => {
  * 3. Update appointment status (Confirmed, Canceled, Completed)
  * Uses PATCH for partial updates
  */
-export const updateAppointmentStatus = async (id: number, data: any) => {
+export const updateAppointmentStatus = async (id: number, status: string) => {
   try {
-    // We send 'data' (the object) instead of just 'status' (the string)
-    const response = await apiClient.patch(`/appointments/${id}`, data);
+    const response = await apiClient.patch(`${BASE_URL}/${id}`, { 
+        appointmentStatus: status 
+    });
     return response.data;
   } catch (error) {
-    console.error("Error updating status:", error);
+    console.error(`Error updating appointment ${id}:`, error);
     throw error;
   }
 };
+
 /**
  * 4. Delete an appointment
  */
