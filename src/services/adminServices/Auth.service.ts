@@ -32,6 +32,7 @@ export const logout = async () => {
   }
 };
 
+
 export const getCurrentUser = async () => {
         return JSON.parse(localStorage.getItem('user') || 'null');
 };      
