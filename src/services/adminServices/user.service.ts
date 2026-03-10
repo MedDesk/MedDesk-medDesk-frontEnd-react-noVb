@@ -2,9 +2,8 @@ import apiClient from "../../../lib/ApiClient";
 
 const BASE_URL = "/users";
 
-/**
- * 1. Fetch all users (Paginated)
- */
+
+
 export const getUsers = async (page: number, size: number) => {
   try {
     const response = await apiClient.get(`${BASE_URL}`, {
