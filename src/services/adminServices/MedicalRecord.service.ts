@@ -3,6 +3,7 @@ import apiClient from "../../../lib/ApiClient";
 const BASE_URL = "/medical-records";
 
 
+
 export const getMedicalRecords = async () => {
   try {
     const response = await apiClient.get(`${BASE_URL}`);
@@ -12,6 +13,8 @@ export const getMedicalRecords = async () => {
     throw error;
   }
 }; 
+
+
 
 export const getMedicalRecordById = async (id: number) => {
   try {
