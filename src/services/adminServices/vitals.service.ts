@@ -2,6 +2,8 @@ import apiClient from "../../../lib/ApiClient";
 
 const BASE_URL = "/vitals";
 
+
+
 export const createVitals = async (data: any) => {
   try {
     const response = await apiClient.post(`${BASE_URL}`, data);
@@ -11,6 +13,7 @@ export const createVitals = async (data: any) => {
     throw error;
   }
 };
+
 
 export const getVitalsById = async (id: number) => {
   try {
