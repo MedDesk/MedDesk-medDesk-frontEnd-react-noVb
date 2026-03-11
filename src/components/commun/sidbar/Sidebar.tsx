@@ -19,7 +19,8 @@ const navItems = [
 
 
   // patient-specific
-  { name: 'My Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/myAppointments', roles: ALL_ROLES }
+  { name: 'My Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/myAppointments', roles: ALL_ROLES },
+  { name: 'My Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/my-medical-records', roles: ['PATIENT'] }
 ];
 
 export default function Sidebar() {
