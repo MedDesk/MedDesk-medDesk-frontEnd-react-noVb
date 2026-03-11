@@ -17,7 +17,7 @@ export const getUsers = async (page: number, size: number) => {
 };
 
 /**
- * 2. Create a new user
+ *  Create a new user
  */
 export const createUser = async (data: any) => {
   try {
@@ -30,7 +30,7 @@ export const createUser = async (data: any) => {
 };
 
 /**
- * 3. Update user details
+ *  Update user details
  * Uses PATCH for partial updates
  */
 export const updateUser = async (id: number, data: any) => {
@@ -44,7 +44,7 @@ export const updateUser = async (id: number, data: any) => {
 };
 
 /**
- * 4. Delete a user
+ *  Delete a user
  */
 export const deleteUser = async (id: number) => {
   try {
