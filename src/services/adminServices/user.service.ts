@@ -35,7 +35,7 @@ export const createUser = async (data: any) => {
  */
 export const updateUser = async (id: number, data: any) => {
   try {
-    const response = await apiClient                                                                                            .patch(`${BASE_URL}/${id}`, data);
+    const response = await apiClient.patch(`${BASE_URL}/${id}`, data);
     return response.data;
   } catch (error) {
     console.error(`Error updating user ${id}:`, error);
