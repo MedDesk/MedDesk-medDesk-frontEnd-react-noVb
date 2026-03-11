@@ -17,6 +17,8 @@ import RegisterPage from './pages/auth/RegisterPage'; // Make sure this import e
 import MyProfilePage from './pages/admin/Profile/MyPrfilePage';
 import MyAppointmentsPage from './pages/patient/appointmemts/AppointmentPage';
 import CreateMedicalRecord from './pages/admin/medicalRecords/CreateMedicalRecord';
+import PatientPortalArchive from './pages/patient/record/RecordPage';
+import WorkingTimes from './pages/home/WorkingTimes';
 
 // --- GUARD COMPONENTS ---
 
@@ -48,11 +50,12 @@ function App() {
       <Routes>
         {/* --- PUBLIC ACCESS --- */}
         <Route path="/" element={<HomePage />} />
-
+             <Route path="/clinic-schedule" element={<WorkingTimes />} />
         {/* --- GUEST ONLY (Redirects to dashboard if logged in) --- */}
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+         
         </Route>
 
         {/* --- PROTECTED ROUTES (Redirects to login if logged out) --- */}
@@ -78,6 +81,7 @@ function App() {
 
             {/* for patient to display appointments of the authenticated patient */}
             <Route path='myAppointments' element={<MyAppointmentsPage/>} />
+            <Route path='my-medical-records' element={<PatientPortalArchive/>} />
           </Route>
         </Route>
 
