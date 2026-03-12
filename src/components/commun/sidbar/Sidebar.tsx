@@ -6,21 +6,23 @@ const ALL_ROLES = ['SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT', 
 
 const navItems = [
   { name: 'Dashboard', icon: 'fa-solid fa-table-columns', path: '/dashboard', roles: ALL_ROLES },
-  { name: 'Manage users', icon: 'fa-solid fa-user-shield', path: '/dashboard/users', roles: ALL_ROLES },
-  { name: 'Manage Patients', icon: 'fa-solid fa-users', path: '/dashboard/patients', roles: ALL_ROLES },
-  { name: 'Manage Doctors', icon: 'fa-solid fa-user-doctor', path: '/dashboard/doctors', roles: ALL_ROLES },
-  { name: 'Manage working Hours', icon: 'fa-solid fa-clock', path: '/dashboard/working-hours', roles: ALL_ROLES }, 
-  { name: 'Manage Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/appointments', roles: ALL_ROLES },
-  { name: 'Display Appointments', icon: 'fa-solid fa-calendar-day', path: '/dashboard/appointments-display', roles: ALL_ROLES },
-  { name: 'Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/medical-records', roles: ALL_ROLES },
-  { name: 'Lab Results', icon: 'fa-solid fa-flask-vial', path: '/dashboard/lab', roles: ALL_ROLES },
-  { name: 'Prescriptions', icon: 'fa-solid fa-capsules', path: '/dashboard/prescriptions', roles: ALL_ROLES },
-  { name: 'Departments', icon: 'fa-solid fa-hospital', path: '/dashboard/departments', roles: ALL_ROLES },
+  { name: 'Manage users', icon: 'fa-solid fa-user-shield', path: '/dashboard/users', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST'] },
+  { name: 'Manage Patients', icon: 'fa-solid fa-users', path: '/dashboard/patients', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
+  { name: 'Manage Doctors', icon: 'fa-solid fa-user-doctor', path: '/dashboard/doctors', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
+  { name: 'Manage working Hours', icon: 'fa-solid fa-clock', path: '/dashboard/working-hours', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  }, 
+  { name: 'Manage Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/appointments', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
+  { name: 'Display Appointments', icon: 'fa-solid fa-calendar-day', path: '/dashboard/appointments-display', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
+  { name: 'Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/medical-records', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
+  
 
 
   // patient-specific
-  { name: 'My Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/myAppointments', roles: ALL_ROLES },
-  { name: 'My Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/my-medical-records', roles: ['PATIENT'] }
+  { name: 'My Appointments', icon: 'fa-solid fa-calendar-check', path: '/dashboard/myAppointments', roles: ['PATIENT'] },
+  { name: 'My Medical Records', icon: 'fa-solid fa-notes-medical', path: '/dashboard/my-medical-records', roles: ['PATIENT'] },
+
+  { name: 'Lab Results', icon: 'fa-solid fa-flask-vial', path: '/dashboard/lab', roles: ALL_ROLES },
+  { name: 'Prescriptions', icon: 'fa-solid fa-capsules', path: '/dashboard/prescriptions', roles: ALL_ROLES },
+  { name: 'Departments', icon: 'fa-solid fa-hospital', path: '/dashboard/departments', roles: ALL_ROLES },
 ];
 
 export default function Sidebar() {
