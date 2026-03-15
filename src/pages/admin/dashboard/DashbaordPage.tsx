@@ -89,8 +89,8 @@
                 {isAdmin ? (
                   <>Your clinic is active. You have <span className="text-white font-bold underline decoration-white/40 underline-offset-8">{stats?.appointmentsToday ?? 0} patients</span> scheduled for today.</>
                 ) : (
-  <>We care for every patient — and we'll take great care of <span className="text-white font-bold underline decoration-white/40 underline-offset-8">you</span>, too. Welcome to your health journey.</>
-                )}
+              <>We care for every patient — and we'll take great care of <span className="text-white font-bold underline decoration-white/40 underline-offset-8">you</span>, too. Welcome to your health journey.</>
+                            )}
               </p>
 
               <div className="flex flex-wrap gap-4 pt-4">
