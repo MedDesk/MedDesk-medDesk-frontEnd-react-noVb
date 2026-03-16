@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, createUser, deleteUser } from '../../../services/adminServices/user.service';
 
-// Helper function to get colors based on Role - Simple for beginners
+// Helper function to get colors based on Role
 function getRoleBadgeStyles(role: string) {
-  if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-    return 'bg-purple-100 text-purple-700 border-purple-200';
-  } else if (role === 'DOCTOR') {
-    return 'bg-blue-100 text-blue-700 border-blue-200';
-  } else if (role === 'RECEPTIONIST') {
-    return 'bg-amber-100 text-amber-700 border-amber-200';
-  } else if (role === 'PATIENT') {
-    return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  } else {
-    return 'bg-slate-100 text-slate-600 border-slate-200';
-  }
+  const styles: Record<string, string> = {
+    'SUPER_ADMIN': 'bg-purple-100 text-purple-700 border-purple-200',
+    'ADMIN': 'bg-purple-100 text-purple-700 border-purple-200',
+    'DOCTOR': 'bg-blue-100 text-blue-700 border-blue-200',
+    'RECEPTIONIST': 'bg-amber-100 text-amber-700 border-amber-200',
+    'PATIENT': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    'STAFF': 'bg-slate-100 text-slate-700 border-slate-200',
+  };
+  return styles[role] || 'bg-slate-100 text-slate-600 border-slate-200';
 }
 
 export default function UsersListPage() {
@@ -23,7 +21,7 @@ export default function UsersListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  
   // New User Form State
   const [formData, setFormData] = useState({
     firstName: '',
@@ -55,27 +53,58 @@ export default function UsersListPage() {
   }, []);
 
   // 3. ACTIONS (Delete & Create)
+
+  /**
+   * FIXED DELETE HANDLER
+   * Handles Foreign Key Constraints from Backend
+   */
   const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+    if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
-        await deleteUser(id);
+        const response = await deleteUser(id);
+
+        // If backend returns a successful-looking response but success is false
+        if (response && response.success === false) {
+          handleDeletionError(response.message);
+          return;
+        }
+
+        alert("User deleted successfully");
         fetchUsers(); // Refresh list
-      } catch (error) {
-        alert("Failed to delete user");
+      } catch (error: any) {
+        // Extract message from Axios error response (Standard Spring Boot Error Structure)
+        const serverMessage = error.response?.data?.message || error.message || "";
+        handleDeletionError(serverMessage);
       }
+    }
+  };
+
+  // Helper to parse SQL errors and show friendly messages
+  const handleDeletionError = (message: string) => {
+    if (message.toLowerCase().includes("foreign key constraint") || message.toLowerCase().includes("referenced")) {
+      alert(
+        "🚫 CANNOT DELETE USER\n\n" +
+        "This user is currently linked to other records (Medical Records, Appointments, or Staff files).\n\n" +
+        "To delete this user, you must first delete or re-assign their related files in the system."
+      );
+    } else {
+      alert("System Error: " + message);
     }
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createUser(formData);
-      setIsModalOpen(false); // Close popup
-      fetchUsers(); // Refresh list
-      // Reset form
-      setFormData({ firstName: '', lastName: '', username: '', email: '', password: '', role: 'OTHER', gender: 'MALE' });
-    } catch (error) {
-      alert("Error creating user");
+      const response = await createUser(formData);
+      if(response.success) {
+        setIsModalOpen(false);
+        fetchUsers();
+        setFormData({ firstName: '', lastName: '', username: '', email: '', password: '', role: 'OTHER', gender: 'MALE' });
+      } else {
+        alert(response.message);
+      }
+    } catch (error: any) {
+      alert("Error creating user: " + (error.response?.data?.message || "Check your input"));
     }
   };
 
@@ -100,7 +129,7 @@ export default function UsersListPage() {
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95"
         >
-          + Add New User
+          <i className="fa-solid fa-plus mr-2"></i> Add New User
         </button>
       </div>
 
@@ -111,17 +140,17 @@ export default function UsersListPage() {
           <input 
             type="text" 
             placeholder="Search by name or email..."
-            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:border-blue-500"
+            className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-2xl outline-none focus:border-blue-500 transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto">
-          {['All', 'ADMIN', 'DOCTOR', 'RECEPTIONIST', 'PATIENT'].map((role) => (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {['All', 'ADMIN', 'DOCTOR', 'RECEPTIONIST', 'PATIENT', 'STAFF'].map((role) => (
             <button
               key={role}
               onClick={() => setActiveFilter(role)}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${activeFilter === role ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200'}`}
+              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all whitespace-nowrap ${activeFilter === role ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
             >
               {role}
             </button>
@@ -131,102 +160,110 @@ export default function UsersListPage() {
 
       {/* USERS TABLE */}
       <div className="bg-white border border-slate-100 rounded-[2rem] shadow-sm overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-100">
-              <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
-              <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
-              <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
-              <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {loading ? (
-              <tr><td colSpan={4} className="p-10 text-center text-slate-400 animate-pulse">Loading users...</td></tr>
-            ) : filteredUsers.map((user) => (
-              <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
-                <td className="p-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
-                      {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+        <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+            <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">User</th>
+                <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Role</th>
+                <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact</th>
+                <th className="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+                {loading ? (
+                <tr><td colSpan={4} className="p-10 text-center text-slate-400 animate-pulse font-bold uppercase tracking-widest">Loading system data...</td></tr>
+                ) : filteredUsers.length === 0 ? (
+                <tr><td colSpan={4} className="p-10 text-center text-slate-400">No users found matching your criteria.</td></tr>
+                ) : filteredUsers.map((user) => (
+                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xs border border-blue-100 shadow-sm">
+                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        </div>
+                        <div>
+                        <div className="text-sm font-black text-slate-800">{user.firstName} {user.lastName}</div>
+                        <div className="text-[10px] text-slate-400 font-bold">@{user.username}</div>
+                        </div>
                     </div>
-                    <div>
-                      <div className="text-sm font-black text-slate-800">{user.firstName} {user.lastName}</div>
-                      <div className="text-[10px] text-slate-400 font-bold">@{user.username}</div>
+                    </td>
+                    <td className="p-5">
+                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${getRoleBadgeStyles(user.role)}`}>
+                        {user.role}
+                    </span>
+                    </td>
+                    <td className="p-5 text-sm font-medium text-slate-600">
+                    {user.email}
+                    <div className="text-[10px] text-slate-400 font-bold">{user.phone || 'No phone provided'}</div>
+                    </td>
+                    <td className="p-5 text-right">
+                    <div className="flex justify-end gap-2">
+                        <button className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                        <i className="fa-solid fa-pen text-xs"></i>
+                        </button>
+                        <button 
+                        onClick={() => handleDelete(user.id)}
+                        className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
+                        title="Delete User"
+                        >
+                        <i className="fa-solid fa-trash text-xs"></i>
+                        </button>
                     </div>
-                  </div>
-                </td>
-                <td className="p-5">
-                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${getRoleBadgeStyles(user.role)}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td className="p-5 text-sm font-medium text-slate-600">
-                  {user.email}
-                  <div className="text-[10px] text-slate-400">{user.phone || 'No phone'}</div>
-                </td>
-                <td className="p-5 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all">
-                      <i className="fa-solid fa-pen text-xs"></i>
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(user.id)}
-                      className="w-8 h-8 rounded-lg bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white transition-all"
-                    >
-                      <i className="fa-solid fa-trash text-xs"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    </td>
+                </tr>
+                ))}
+            </tbody>
+            </table>
+        </div>
       </div>
 
       {/* CREATE USER MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-            <h2 className="text-2xl font-black text-slate-900 mb-6">New System User</h2>
+          <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-black text-slate-900">New System User</h2>
+                <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><i className="fa-solid fa-xmark text-xl"></i></button>
+            </div>
             
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase text-slate-400 ml-1">First Name</label>
-                  <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
+                  <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold focus:border-blue-500" value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Last Name</label>
-                  <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
+                  <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold focus:border-blue-500" value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Username</label>
-                <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+                <input required className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold focus:border-blue-500" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Email</label>
-                <input required type="email" className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Email Address</label>
+                <input required type="email" className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold focus:border-blue-500" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Password</label>
-                <input required type="password" placeholder="Min. 8 characters" className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+                <input required type="password" placeholder="Min. 8 characters" className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-sm font-bold focus:border-blue-500" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Role</label>
-                  <select className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-xs font-bold" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Role Type</label>
+                  <select className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-xs font-bold focus:border-blue-500 appearance-none" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}>
                     {['ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT', 'STAFF', 'OTHER'].map(r => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Gender</label>
-                  <select className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-xs font-bold" value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}>
+                  <select className="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-100 outline-none text-xs font-bold focus:border-blue-500 appearance-none" value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}>
                     <option value="MALE">MALE</option>
                     <option value="FEMALE">FEMALE</option>
                   </select>
@@ -234,8 +271,8 @@ export default function UsersListPage() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 font-bold text-slate-400">Cancel</button>
-                <button type="submit" className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100">Save User</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 font-bold text-slate-400 hover:text-slate-600 transition-colors">Cancel</button>
+                <button type="submit" className="flex-[2] py-4 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">Save User Data</button>
               </div>
             </form>
           </div>
