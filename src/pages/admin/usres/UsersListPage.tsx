@@ -15,7 +15,7 @@ function getRoleBadgeStyles(role: string) {
 }
 
 export default function UsersListPage() {
-  // 1. STATE MANAGEMENT
+  //  STATE MANAGEMENT
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
