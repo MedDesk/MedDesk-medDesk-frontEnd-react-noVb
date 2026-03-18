@@ -271,31 +271,31 @@ useEffect(()=>{
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2">
             {
-  isLoggedIn ? (
-    <Link to="/dashboard" className="font-medium text-slate-600 hover:text-blue-600">
-  Dashboard
-</Link>
-  ) : (
-    <>
-   
-    <button
-      onClick={() => navigate("/login")}
-      className="px-4 py-2 text-[14px] font-bold text-slate-500 hover:text-[#1D6BF3] transition-colors"
-    >
-      Sign In
-    </button> 
-    
-     <button
-              onClick={() => navigate("/register")}
-              className="px-5 py-2.5 text-[14px] font-bold text-[#1D6BF3] border border-blue-200 rounded-full hover:bg-blue-50 transition-all"
-            >
-              Create Account
-            </button>
-    </>
+              isLoggedIn ? (
+                <Link to="/dashboard" className="font-medium text-slate-600 hover:text-blue-600">
+              Dashboard
+            </Link>
+              ) : (
+                <>
+              
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-4 py-2 text-[14px] font-bold text-slate-500 hover:text-[#1D6BF3] transition-colors"
+                >
+                  Sign In
+                </button> 
+                
+                <button
+                          onClick={() => navigate("/register")}
+                          className="px-5 py-2.5 text-[14px] font-bold text-[#1D6BF3] border border-blue-200 rounded-full hover:bg-blue-50 transition-all"
+                        >
+                          Create Account
+                        </button>
+                </>
 
-    
-  )
-}
+                
+              )
+            }
            
           </div>
 
