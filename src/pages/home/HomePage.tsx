@@ -286,11 +286,11 @@ useEffect(()=>{
                 </button> 
                 
                 <button
-                          onClick={() => navigate("/register")}
-                          className="px-5 py-2.5 text-[14px] font-bold text-[#1D6BF3] border border-blue-200 rounded-full hover:bg-blue-50 transition-all"
-                        >
-                          Create Account
-                        </button>
+                            onClick={() => navigate("/register")}
+                            className="px-5 py-2.5 text-[14px] font-bold text-[#1D6BF3] border border-blue-200 rounded-full hover:bg-blue-50 transition-all"
+                          >
+                            Create Account
+                          </button>
                 </>
                 
               )
