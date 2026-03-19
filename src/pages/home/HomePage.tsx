@@ -26,7 +26,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { div, p } from "framer-motion/client";
 
-// ─── Configuration ─────────────────────────────────────────────────────────
+// ─── Configuration
 const stats = [
   { icon: <Award size={18} />, value: "490", label: "Awards" },
   { icon: <Users size={18} />, value: "6,700+", label: "Patients" },
@@ -297,7 +297,6 @@ useEffect(()=>{
             }
            
           </div>
-
 
           <button
             onClick={() => navigate("/clinic-schedule")}
