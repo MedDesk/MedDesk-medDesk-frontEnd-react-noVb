@@ -86,6 +86,10 @@ const doctors = [
     img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=300&h=350",
     rating: "4.7",
   },
+  /**
+   * we gonna add here our doctor but intel we create the doctor reviews service that allows patient to add there 
+   * opinion about the doctor and we will display it here in the home page and int the doctor
+   */
 ];
 
 // ─── Main Component ────────────────────────────────────────────────────────
