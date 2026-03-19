@@ -298,6 +298,7 @@ useEffect(()=>{
            
           </div>
 
+
           <button
             onClick={() => navigate("/clinic-schedule")}
             className="appt-btn text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2"
