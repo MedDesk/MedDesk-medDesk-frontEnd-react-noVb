@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../services/adminServices/Auth.service';
-import { 
-  Heart, 
-  Mail, 
-  Lock, 
-  User, 
-  Phone, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
-  CheckCircle2, 
-  UserPlus,
-  ArrowLeft
-} from 'lucide-react';
+import { Heart, Mail, Lock, User, Phone, Eye, EyeOff, CheckCircle2, UserPlus, ArrowLeft } from 'lucide-react';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -21,64 +9,46 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRegistered, setRegistered] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Form State using the data structure you provided
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    password: '',
-    phone: ''
+    firstName: '', lastName: '', username: '', email: '', password: '', phone: ''
   });
 
-  const handleChange = (e:any) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e: any) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e:any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
-    try{
+    try {
       setIsLoading(true);
-        setError(null);
-          const response = await register(formData);
-          if(response.success){
-            setRegistered(true);
-          }
-          
-    }catch(err:any){
-      const errorMessage = err.response?.data?.message || "Connection lost. Please try again.";
-      setError(errorMessage);
-    }finally{ 
+      setError(null);
+      const response = await register(formData);
+      if (response.success) {
+        setRegistered(true);
+        setTimeout(() => navigate('/login'), 1500);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Connection lost. Please try again.");
+    } finally {
       setIsLoading(false);
     }
-    
-    
-    
-      
-    setTimeout(() => {
-      console.log("Registered Data:", formData);
-      setIsLoading(false);
-      navigate('/login'); // Redirect to login after success
-    }, 1500);
   };
 
+  const inputClass = "w-full bg-transparent border-b border-slate-200 py-3 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 transition-colors";
+
   return (
-    <div className="min-h-screen bg-white flex font-['Inter'] selection:bg-blue-100">
-      {/* Dynamic Font Import */}
+    <div className="h-screen bg-white flex font-['Inter'] overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
         h1, h2, h3, h4, .font-heading { font-family: 'Outfit', sans-serif; }
       `}} />
 
-      {/* LEFT SIDE: Decorative Brand Panel */}
+      {/* LEFT PANEL */}
       <div className="hidden lg:flex lg:w-[40%] relative bg-slate-900 overflow-hidden">
-        <img 
-          src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1000" 
+        <img
+          src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1000"
           className="absolute inset-0 w-full h-full object-cover opacity-30 grayscale"
           alt="Hospital hallway"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-blue-600/30 to-slate-950" />
-        
         <div className="relative z-10 w-full p-12 flex flex-col justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="bg-white p-2 rounded-xl">
@@ -86,8 +56,7 @@ export default function RegisterPage() {
             </div>
             <span className="text-2xl font-bold tracking-tight text-white font-heading">MedDesk</span>
           </div>
-
-          <div className="space-y-6">
+          <div className="space-y-4">
             <h1 className="text-5xl font-black text-white leading-tight font-heading">
               Join Our <br /> <span className="text-blue-400">Medical</span> <br /> Community.
             </h1>
@@ -95,157 +64,109 @@ export default function RegisterPage() {
               Start managing your healthcare operations with precision and ease.
             </p>
           </div>
-
-          <div className="space-y-4">
-             {["Instant account setup", "Dedicated support team", "All-in-one health suite"].map((text, i) => (
-               <div key={i} className="flex items-center gap-3 text-white font-semibold text-sm">
-                 <div className="bg-blue-500/20 p-1 rounded-full text-blue-400"><CheckCircle2 size={16} /></div>
-                 {text}
-               </div>
-             ))}
+          <div className="space-y-3">
+            {["Instant account setup", "Dedicated support team", "All-in-one health suite"].map((text, i) => (
+              <div key={i} className="flex items-center gap-3 text-white font-semibold text-sm">
+                <div className="bg-blue-500/20 p-1 rounded-full text-blue-400"><CheckCircle2 size={16} /></div>
+                {text}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* RIGHT SIDE: Register Form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 lg:p-20 bg-[#F8FAFC]">
-        <div className="w-full max-w-2xl bg-white p-8 sm:p-12 rounded-[40px] shadow-2xl shadow-slate-200/50 border border-slate-100">
-          
-          <button 
+      {/* RIGHT PANEL */}
+      <div className="flex-1 flex items-center justify-center bg-[#F8FAFC] px-6 sm:px-12 lg:px-20">
+        <div className="w-full max-w-2xl bg-white px-12 py-8 rounded-[32px] shadow-xl shadow-slate-200/60 border border-slate-100">
+
+          <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-slate-400 hover:text-blue-600 font-bold text-xs uppercase tracking-widest mb-8 transition-colors"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-blue-600 font-bold text-xs uppercase tracking-widest mb-6 transition-colors"
           >
-            <ArrowLeft size={14} /> Back to Home
+            <ArrowLeft size={13} /> Back
           </button>
 
-          <div className="mb-10">
-            <h2 className="text-4xl font-black text-slate-900 font-heading tracking-tight mb-2">Create Account</h2>
-            <p className="text-slate-500 font-medium">Please fill in your professional details below.</p>
-            <p>
-              {isRegistered && <span className="text-green-600 font-bold mt-4 block">Registration successful! Redirecting to login...</span>}
-              {error && <span className="text-rose-500 font-bold mt-4 block">{error}</span>}
-            </p>
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-black text-slate-900 font-heading tracking-tight">Create Account</h2>
+            <div className="flex items-center gap-1.5 mt-1">
+              <p className="text-sm text-slate-400">Not a patient?</p>
+              <span
+                onClick={() => navigate("/register-cabinet")}
+                className="text-sm text-blue-600 font-semibold cursor-pointer hover:underline"
+              >
+                Register a hospital instead
+              </span>
+            </div>
+            {isRegistered && <p className="text-green-600 text-sm font-semibold mt-2">Registration successful! Redirecting...</p>}
+            {error && <p className="text-rose-500 text-sm font-semibold mt-2">{error}</p>}
           </div>
-          
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Row 1: First & Last Name */}
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">First Name</label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
-                  <input
-                    required
-                    name="firstName"
-                    placeholder="e.g. Hanan"
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Last Name</label>
-                <input
-                  required
-                  name="lastName"
-                  placeholder="e.g. Mansouri"
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
 
-            {/* Row 2: Username & Phone */}
-            <div className="grid sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Username</label>
-                <input
-                  required
-                  name="username"
-                  placeholder="hana"
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</label>
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
-                  <input
-                    required
-                    name="phone"
-                    placeholder="+212..."
-                    className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Row 3: Email */}
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+            {/* First & Last Name */}
+            <div className="grid grid-cols-2 gap-8">
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
-                <input
-                  required
-                  name="email"
-                  type="email"
-                  placeholder="s.hana@gmail.com"
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                  onChange={handleChange}
-                />
+                <User className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <input required name="firstName" placeholder="First name" className={inputClass} onChange={handleChange} />
+              </div>
+              <div className="relative">
+                <User className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <input required name="lastName" placeholder="Last name" className={inputClass} onChange={handleChange} />
               </div>
             </div>
 
-            {/* Row 4: Password */}
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Create Password</label>
-              <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
-                <input
-                  required
-                  name="password"
-                  type={showPw ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-12 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-600 focus:bg-white transition-all font-medium"
-                  onChange={handleChange}
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPw(!showPw)} 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
+            {/* Username & Phone */}
+            <div className="grid grid-cols-2 gap-8">
+              <div className="relative">
+                <User className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <input required name="username" placeholder="Username" className={inputClass} onChange={handleChange} />
+              </div>
+              <div className="relative">
+                <Phone className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                <input required name="phone" placeholder="+212..." className={inputClass} onChange={handleChange} />
               </div>
             </div>
 
-            <div className="pt-4">
-              <button 
-                type="submit" 
-                disabled={isLoading}
-                className="w-full bg-slate-900 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-blue-600 hover:shadow-2xl hover:shadow-blue-100 transition-all active:scale-[0.98] disabled:opacity-70 group"
+            {/* Email */}
+            <div className="relative">
+              <Mail className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+              <input required name="email" type="email" placeholder="Email address" className={inputClass} onChange={handleChange} />
+            </div>
+
+            {/* Password */}
+            <div className="relative">
+              <Lock className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+              <input
+                required name="password" type={showPw ? 'text' : 'password'} placeholder="Create password"
+                className={inputClass + " pr-10"}
+                onChange={handleChange}
+              />
+              <button type="button" onClick={() => setShowPw(!showPw)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {/* Submit */}
+            <div className="pt-3">
+              <button
+                type="submit" disabled={isLoading}
+                className="w-full bg-slate-900 text-white py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-all active:scale-[0.98] disabled:opacity-60 group"
               >
-                {isLoading ? (
-                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Create My Account
-                    <UserPlus size={20} className="group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
+                {isLoading
+                  ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  : <><span>Create Account</span><UserPlus size={16} className="group-hover:translate-x-0.5 transition-transform" /></>
+                }
               </button>
             </div>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-slate-50 text-center">
-            <p className="text-slate-500 font-medium">
-              Already have an admin account?{' '}
-              <Link to="/login" className="text-blue-600 font-bold hover:underline underline-offset-4">Sign In here</Link>
-            </p>
-          </div>
+          <p className="mt-6 text-center text-sm text-slate-400">
+            Already have an account?{' '}
+            <Link to="/login" className="text-blue-600 font-semibold hover:underline underline-offset-2">Sign in</Link>
+          </p>
+
         </div>
       </div>
     </div>

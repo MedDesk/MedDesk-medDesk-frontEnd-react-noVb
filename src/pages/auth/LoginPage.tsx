@@ -184,7 +184,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           <div className="pt-6 text-center">
             <p className="text-slate-500 font-medium">
               New to MedDesk?{' '}
-              <Link to="/Register" className="text-blue-600 font-bold hover:underline underline-offset-4">Create admin account</Link>
+              <Link to="/Register" className="text-blue-600 font-bold hover:underline underline-offset-4">I don't have an account</Link>
             </p>
           </div>
         </div>
