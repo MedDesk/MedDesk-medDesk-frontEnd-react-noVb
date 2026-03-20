@@ -209,7 +209,7 @@ export default function UsersListPage() {
                                 </button>
                             </Link>
                         ) : (
-                            // 3. For DOCTOR, STAFF, etc. -> Show Edit/Delete Icons
+                            // For DOCTOR, STAFF, etc. -> Show Edit/Delete Icons
                             <>
                                 <button className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center justify-center">
                                     <i className="fa-solid fa-pen text-xs"></i>
