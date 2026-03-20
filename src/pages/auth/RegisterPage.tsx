@@ -126,6 +126,7 @@ export default function RegisterPage() {
               {error && <span className="text-rose-500 font-bold mt-4 block">{error}</span>}
             </p>
           </div>
+          
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Row 1: First & Last Name */}
