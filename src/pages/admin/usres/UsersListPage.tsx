@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers, createUser, deleteUser } from '../../../services/adminServices/user.service';
+import { Link } from 'react-router-dom';
 
 // Helper function to get colors based on Role
 function getRoleBadgeStyles(role: string) {
@@ -53,39 +54,29 @@ export default function UsersListPage() {
   }, []);
 
   // 3. ACTIONS (Delete & Create)
-
-  /**
-   * FIXED DELETE HANDLER
-   * Handles Foreign Key Constraints from Backend
-   */
   const handleDelete = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       try {
         const response = await deleteUser(id);
-
-        // If backend returns a successful-looking response but success is false
         if (response && response.success === false) {
           handleDeletionError(response.message);
           return;
         }
-
         alert("User deleted successfully");
-        fetchUsers(); // Refresh list
+        fetchUsers();
       } catch (error: any) {
-        // Extract message from Axios error response (Standard Spring Boot Error Structure)
         const serverMessage = error.response?.data?.message || error.message || "";
         handleDeletionError(serverMessage);
       }
     }
   };
 
-  // Helper to parse SQL errors and show friendly messages
   const handleDeletionError = (message: string) => {
     if (message.toLowerCase().includes("foreign key constraint") || message.toLowerCase().includes("referenced")) {
       alert(
         "🚫 CANNOT DELETE USER\n\n" +
-        "This user is currently linked to other records (Medical Records, Appointments, or Staff files).\n\n" +
-        "To delete this user, you must first delete or re-assign their related files in the system."
+        "This user is currently linked to other records.\n\n" +
+        "To delete this user, you must first delete or re-assign their related files."
       );
     } else {
       alert("System Error: " + message);
@@ -197,18 +188,41 @@ export default function UsersListPage() {
                     {user.email}
                     <div className="text-[10px] text-slate-400 font-bold">{user.phone || 'No phone provided'}</div>
                     </td>
+                    
+                    {/* UPDATED ACTIONS LOGIC */}
                     <td className="p-5 text-right">
-                    <div className="flex justify-end gap-2">
-                        <button className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                        <i className="fa-solid fa-pen text-xs"></i>
-                        </button>
-                        <button 
-                        onClick={() => handleDelete(user.id)}
-                        className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white transition-all shadow-sm"
-                        title="Delete User"
-                        >
-                        <i className="fa-solid fa-trash text-xs"></i>
-                        </button>
+                    <div className="flex justify-end items-center gap-2">
+                        {/* 1. If role is SUPER_ADMIN or ADMIN -> Badge Only */}
+                        {user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? (
+                            <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 italic">
+                                <i className="fa-solid fa-lock mr-1"></i> Protected
+                            </span>
+                        ) : user.role === 'PATIENT' ? (
+                            // 2. If role is PATIENT -> Link Only (Icons Hidden)
+                            <Link to={`/dashboard/patients/${user.id}`}>
+                                <button 
+                                    className="px-3 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm text-[10px] font-black uppercase tracking-wider flex items-center gap-2"
+                                    title="Check Patient Sections"
+                                >
+                                    <i className="fa-solid fa-folder-open"></i>
+                                    <span className="hidden lg:inline">Patient Sections</span>
+                                </button>
+                            </Link>
+                        ) : (
+                            // 3. For DOCTOR, STAFF, etc. -> Show Edit/Delete Icons
+                            <>
+                                <button className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm flex items-center justify-center">
+                                    <i className="fa-solid fa-pen text-xs"></i>
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(user.id)}
+                                    className="w-9 h-9 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
+                                    title="Delete User"
+                                >
+                                    <i className="fa-solid fa-trash text-xs"></i>
+                                </button>
+                            </>
+                        )}
                     </div>
                     </td>
                 </tr>
