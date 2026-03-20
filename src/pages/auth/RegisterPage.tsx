@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { register } from '../../services/adminServices/Auth.service';
 import { 
   Heart, 
   Mail, 
@@ -18,7 +19,8 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isRegistered, setRegistered] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   // Form State using the data structure you provided
   const [formData, setFormData] = useState({
     firstName: '',
@@ -35,8 +37,24 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e:any) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate API registration
+    try{
+      setIsLoading(true);
+        setError(null);
+          const response = await register(formData);
+          if(response.success){
+            setRegistered(true);
+          }
+          
+    }catch(err:any){
+      const errorMessage = err.response?.data?.message || "Connection lost. Please try again.";
+      setError(errorMessage);
+    }finally{ 
+      setIsLoading(false);
+    }
+    
+    
+    
+      
     setTimeout(() => {
       console.log("Registered Data:", formData);
       setIsLoading(false);
@@ -103,6 +121,10 @@ export default function RegisterPage() {
           <div className="mb-10">
             <h2 className="text-4xl font-black text-slate-900 font-heading tracking-tight mb-2">Create Account</h2>
             <p className="text-slate-500 font-medium">Please fill in your professional details below.</p>
+            <p>
+              {isRegistered && <span className="text-green-600 font-bold mt-4 block">Registration successful! Redirecting to login...</span>}
+              {error && <span className="text-rose-500 font-bold mt-4 block">{error}</span>}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
