@@ -192,7 +192,7 @@ export default function UsersListPage() {
                     {/* UPDATED ACTIONS LOGIC */}
                     <td className="p-5 text-right">
                     <div className="flex justify-end items-center gap-2">
-                        {/* 1. If role is SUPER_ADMIN or ADMIN -> Badge Only */}
+                        {/*  If role is SUPER_ADMIN or ADMIN -> Badge Only */}
                         {user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' ? (
                             <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 italic">
                                 <i className="fa-solid fa-lock mr-1"></i> Protected
