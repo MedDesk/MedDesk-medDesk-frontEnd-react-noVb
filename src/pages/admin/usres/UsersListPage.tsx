@@ -198,7 +198,7 @@ export default function UsersListPage() {
                                 <i className="fa-solid fa-lock mr-1"></i> Protected
                             </span>
                         ) : user.role === 'PATIENT' ? (
-                            // 2. If role is PATIENT -> Link Only (Icons Hidden)
+                            // If role is PATIENT -> Link Only (Icons Hidden)
                             <Link to={`/dashboard/patients/${user.id}`}>
                                 <button 
                                     className="px-3 h-9 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm text-[10px] font-black uppercase tracking-wider flex items-center gap-2"
