@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { login } from "../../services/adminServices/Auth.service"; 
 
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
