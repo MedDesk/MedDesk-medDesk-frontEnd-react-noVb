@@ -23,7 +23,8 @@ import {
   Star,
   ChevronRight,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { div, p } from "framer-motion/client";
 
 // ─── Configuration ─────────────────────────────────────────────────────────
 const stats = [
@@ -93,6 +94,7 @@ export default function MedDesk() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -101,6 +103,13 @@ export default function MedDesk() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+
+useEffect(()=>{
+  const storedUser = localStorage.getItem('user');
+  if(storedUser){ 
+    setIsLoggedIn(true);
+  }
+}, [])
   return (
     <div className="min-h-screen bg-[#F7F9FC] text-slate-900 selection:bg-blue-100 selection:text-blue-700 overflow-x-hidden">
       {/* ── Fonts & Global Styles ─────────────────────────── */}
@@ -261,18 +270,33 @@ export default function MedDesk() {
 
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2">
-            <button
-              onClick={() => navigate("/login")}
-              className="px-4 py-2 text-[14px] font-bold text-slate-500 hover:text-[#1D6BF3] transition-colors"
-            >
-              Sign In
-            </button>
-            <button
+            {
+  isLoggedIn ? (
+    <Link to="/dashboard" className="font-medium text-slate-600 hover:text-blue-600">
+  Dashboard
+</Link>
+  ) : (
+    <>
+   
+    <button
+      onClick={() => navigate("/login")}
+      className="px-4 py-2 text-[14px] font-bold text-slate-500 hover:text-[#1D6BF3] transition-colors"
+    >
+      Sign In
+    </button> 
+    
+     <button
               onClick={() => navigate("/register")}
               className="px-5 py-2.5 text-[14px] font-bold text-[#1D6BF3] border border-blue-200 rounded-full hover:bg-blue-50 transition-all"
             >
               Create Account
             </button>
+    </>
+
+    
+  )
+}
+           
           </div>
 
           <button
