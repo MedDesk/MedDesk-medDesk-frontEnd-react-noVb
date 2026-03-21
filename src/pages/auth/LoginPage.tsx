@@ -21,40 +21,42 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const response = await login({ email, password });
+  try {
+   // and we send the credentials too but we handle that in the interceptor of the apiClient
+    const response = await login({ email, password });
 
-      if (response.success) {
-        // 1. Save ONLY Access Token and User Info to localStorage
-        // The Refresh Token is now safely in an httpOnly cookie set by your server
-        localStorage.setItem('accessToken', response.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+    if (response.success) {
+      // because the token has no expiration time long
+      localStorage.setItem('accessToken', response.data.accessToken);
+      
+      
+      // store user data to display in the dashboard
+      localStorage.setItem('user', JSON.stringify(response.data.user));
 
-        // 2. Role Check Logic
-        const userRole = response.data.user.role;
-        const allowedRoles = ['SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT', 'STAFF'];
+      const userRole = response.data.user.role;
+      const allowedRoles = ['SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT', 'STAFF'];
 
-        if (allowedRoles.includes(userRole)) {
-          navigate('/dashboard');
-        } else {
-          setError("Unauthorized: Access denied for this role.");
-          localStorage.clear();
-        }
+      if (allowedRoles.includes(userRole)) {
+        navigate('/dashboard');
       } else {
-        setError(response.message || "Invalid credentials.");
+        setError("Unauthorized: Access denied for this role.");
+        localStorage.clear();
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Connection lost. Please try again.";
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError(response.message || "Invalid credentials.");
     }
-  };
+  } catch (err: any) {
+    const errorMessage = err.response?.data?.message || "Connection lost. Please try again.";
+    setError(errorMessage);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-white flex font-['Inter'] selection:bg-blue-100">
