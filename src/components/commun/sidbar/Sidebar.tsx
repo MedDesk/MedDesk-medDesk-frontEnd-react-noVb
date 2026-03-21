@@ -6,7 +6,7 @@ const ALL_ROLES = ['SUPER_ADMIN', 'ADMIN', 'RECEPTIONIST', 'DOCTOR', 'PATIENT', 
 
 const navItems = [
   { name: 'Dashboard', icon: 'fa-solid fa-table-columns', path: '/dashboard', roles: ALL_ROLES },
-  { name: 'Manage users', icon: 'fa-solid fa-user-shield', path: '/dashboard/users', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST'] },
+  { name: 'Manage users', icon: 'fa-solid fa-user-shield', path: '/dashboard/users', roles: ['ADMIN', 'SUPER_ADMIN'] },
   { name: 'Manage Patients', icon: 'fa-solid fa-users', path: '/dashboard/patients', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
   { name: 'Manage Doctors', icon: 'fa-solid fa-user-doctor', path: '/dashboard/doctors', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  },
   { name: 'Manage working Hours', icon: 'fa-solid fa-clock', path: '/dashboard/working-hours', roles: ['ADMIN', 'SUPER_ADMIN', 'RECEPTIONIST']  }, 
